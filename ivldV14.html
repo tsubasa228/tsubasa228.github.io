@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>長跑訓練記錄系統</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--pri:#2563eb;--pri-d:#1d4ed8;--txt:#0f172a;--muted:#64748b;--bd:#e2e8f0;--ok:#16a34a;--no:#dc2626;--warn:#f59e0b;--purple:#7c3aed}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.5}
+h1,h2,h3{margin:0 0 12px}
+h2{font-size:19px}
+h3{font-size:16px;margin-top:18px;color:#334155}
+.muted{color:var(--muted);font-size:13px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;padding:8px 14px;font-size:14px;transition:.15s}
+.btn-primary{background:var(--pri);color:#fff}
+.btn-primary:hover{background:var(--pri-d)}
+.btn-ghost{background:#e2e8f0;color:#334155}
+.btn-warn{background:#fef3c7;color:#b45309}
+.btn-warn:hover{background:#fde68a}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-purple:hover{background:#6d28d9}
+.btn-sm{padding:4px 9px;font-size:12.5px;background:#e2e8f0;color:#334155}
+.btn-sm.danger,.danger{background:#fee2e2;color:#b91c1c}
+.btn-sm.ok{background:#dcfce7;color:#15803d}
+input,select,textarea{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:#fff;color:var(--txt);width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+label{display:block;font-size:13px;color:#475569;margin-bottom:10px}
+label input,label select,label textarea{margin-top:4px}
+label.checkline{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt)}
+label.checkline input{width:auto;margin:0}
+input[type=range]{padding:0}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#2563eb 60%,#38bdf8);padding:20px}
+.login-card{background:#fff;border-radius:18px;padding:34px 30px;width:100%;max-width:390px;box-shadow:0 25px 60px rgba(0,0,0,.25)}
+.login-card h1{font-size:22px;text-align:center;margin-bottom:4px}
+.login-card .sub{text-align:center;color:var(--muted);font-size:12.5px;margin:0 0 22px;letter-spacing:1px}
+.login-card button{width:100%;background:var(--pri);color:#fff;padding:11px;font-size:15px;margin-top:6px}
+.login-card button:hover{background:var(--pri-d)}
+.msg{color:var(--no);font-size:13px;min-height:18px;margin-top:8px;text-align:center}
+.hint{margin-top:18px;font-size:12px;color:var(--muted);text-align:center;line-height:1.7;background:#f8fafc;border-radius:8px;padding:8px}
+.topbar{background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:50}
+.brand{font-weight:700;font-size:16px;display:flex;align-items:center;gap:9px}
+.brand img{height:30px;border-radius:6px;vertical-align:middle}
+.brand .logo-emoji{font-size:22px;line-height:1}
+.userbox{display:flex;align-items:center;gap:8px;font-size:13.5px;flex-wrap:wrap}
+.userbox .btn-sm{background:rgba(255,255,255,.15);color:#fff}
+.userbox .btn-sm:hover{background:rgba(255,255,255,.28)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;background:#fff;border-bottom:1px solid var(--bd);position:sticky;top:52px;z-index:40}
+.tabs button{background:#f1f5f9;color:#475569;white-space:nowrap;border-radius:20px;padding:7px 15px;font-size:13.5px}
+.tabs button.active{background:var(--pri);color:#fff}
+main{padding:16px;max-width:1180px;margin:0 auto}
+.card{background:var(--card);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.07),0 1px 2px rgba(15,23,42,.04)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.row input,.row select,.row label{width:auto;margin:0}
+.row input[type=date],.row input[type=month],.row input[type=number]{min-width:140px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0 14px}
+@media(max-width:900px){.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:linear-gradient(135deg,#eff6ff,#fff);border:1px solid #dbeafe;border-radius:12px;padding:14px}
+.stat .lbl{font-size:12.5px;color:var(--muted)}
+.stat .val{font-size:25px;font-weight:700;color:var(--pri);line-height:1.25}
+.stat .val small{font-size:13px;font-weight:500;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+.tbl th{background:#f8fafc;color:#475569;font-weight:600;text-align:left;padding:9px 10px;border-bottom:2px solid var(--bd);white-space:nowrap;font-size:12.5px}
+.tbl td{padding:9px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.tbl tr:hover td{background:#f8fafc}
+.laptbl{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+.laptbl th{background:#f1f5f9;color:#475569;font-weight:600;text-align:left;padding:7px 8px;border-bottom:2px solid var(--bd);white-space:nowrap;font-size:12px}
+.laptbl td{padding:5px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.laptbl input{padding:6px 8px;font-size:13.5px}
+.laptbl .pacecell{color:#0369a1;font-weight:600;font-size:12.5px;white-space:nowrap}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;background:#e2e8f0;color:#475569}
+.tag.ok{background:#dcfce7;color:#15803d}
+.tag.test{background:#e9d5ff;color:#6b21a8}
+.tag.no{background:#fee2e2;color:#b91c1c}
+.tag.male{background:#dbeafe;color:#1d4ed8}
+.tag.female{background:#fce7f3;color:#be185d}
+.tag.pb{background:#fef3c7;color:#92400e;font-weight:600}
+.calcbox{background:#f0f9ff;border:1px dashed #7dd3fc;border-radius:10px;padding:10px 14px;font-size:13px;color:#0369a1;margin:4px 0 14px}
+.calcbox b{color:#0c4a6e}
+.planbox{background:#fef3c7;border:1px dashed #fbbf24;border-radius:10px;padding:10px 14px;font-size:13.5px;color:#92400e;margin:0 0 14px}
+.planbox b{color:#78350f}
+.previewbox{background:#f5f3ff;border:1px solid #e9d5ff;border-radius:10px;padding:12px 14px;margin-top:12px}
+.previewbox h4{margin:0 0 8px;font-size:14px;color:#6b21a8}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:#f1f5f9;border-radius:20px;padding:6px 8px 6px 13px;font-size:13px;display:flex;align-items:center;gap:6px}
+.chip small{color:var(--muted)}
+.chip .x{background:transparent;color:#94a3b8;padding:0 4px;font-size:16px;line-height:1;cursor:pointer}
+.chip .x:hover{color:var(--no)}
+.msg{padding:10px 0;border-bottom:1px dashed #e2e8f0}
+.msg:last-child{border:none}
+.msg-head{display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:3px;flex-wrap:wrap}
+.msg-body{font-size:14px;color:#334155;white-space:pre-wrap;word-break:break-word}
+.msg.coach .msg-body{color:#1d4ed8}
+.medal{font-size:15px}
+.ranknum{display:inline-block;width:22px;font-weight:700;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:26px 0;font-size:14px}
+.pbhead{display:grid;grid-template-columns:1.1fr 1fr 1.1fr 1.7fr 62px;gap:8px;font-size:12px;color:var(--muted);margin:0 0 6px;padding:0 2px}
+.pbrow{display:grid;grid-template-columns:1.1fr 1fr 1.1fr 1.7fr 62px;gap:8px;margin-bottom:8px;align-items:center}
+.pbrow input{font-size:13.5px;padding:7px 9px}
+.pbrow button{width:100%;padding:7px 0}
+@media(max-width:700px){.pbhead{display:none}.pbrow{grid-template-columns:1fr 1fr;padding:10px;background:#f8fafc;border-radius:10px}.pbrow button{grid-column:span 2}}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:24px;max-width:640px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 25px 60px rgba(0,0,0,.3)}
+.modal h2{margin-bottom:16px}
+.matrix-wrap{overflow:auto; max-height:72vh; border:1px solid var(--bd); border-radius:10px; margin-top:14px; background:#fff;}
+.matrix-table{border-collapse:separate; border-spacing:0; font-size:13px;}
+.matrix-table th, .matrix-table td{border-right:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:5px 6px; text-align:center; background:#fff; white-space:nowrap;}
+.matrix-table th{background:#f1f5f9; font-weight:600; position:sticky; top:0; z-index:3; font-size:12px; color:#475569;}
+.matrix-table th:first-child, .matrix-table td:first-child{position:sticky; left:0; z-index:2; background:#f8fafc;}
+.matrix-table th:first-child{z-index:4;}
+.matrix-table td.name{font-weight:600; text-align:left; min-width:88px; background:#f8fafc;}
+.matrix-table input{padding:5px 6px; font-size:13px; width:74px; text-align:center; border:1px solid #e2e8f0; border-radius:6px;}
+.matrix-table input:focus{border-color:var(--pri); box-shadow:0 0 0 2px rgba(37,99,235,.15);}
+.matrix-table input.dist-input{width:66px;}
+.matrix-table td.total-cell{font-size:11px; line-height:1.45; color:#475569; text-align:left; min-width:130px; background:#fcfdff;}
+.matrix-table td.total-cell b{color:var(--pri); font-size:13px;}
+.matrix-table tr:hover td{background:#f8fafc;}
+.workout-card{background:linear-gradient(135deg,#faf5ff,#fff);border:1px solid #e9d5ff;border-radius:14px;padding:18px;margin-bottom:16px}
+.workout-seg{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.workout-seg .seg-title{font-weight:600;font-size:14px;color:var(--purple);margin-bottom:6px}
+.workout-seg .seg-body{font-size:13.5px;color:#334155;line-height:1.7}
+.workout-seg .seg-body b{color:#0f172a}
+@media(max-width:640px){.matrix-table input{width:60px; font-size:12px;}}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginView">
+  <div class="login-card">
+    <h1>🏃 長跑訓練記錄系統</h1>
+    <p class="sub">RUNNING TRAINING LOG</p>
+    <label>帳號<input id="loginUser" autocomplete="username" placeholder="請輸入帳號"></label>
+    <label>密碼<input id="loginPass" type="password" autocomplete="current-password" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')doLogin()"></label>
+    <button onclick="doLogin()">登 入</button>
+    <div class="msg" id="loginMsg"></div>
+    <div class="hint">
+      預設教練：<b>coach / coach123</b><br>
+      預設學生：<b>s001 ~ s005 / 1234</b>
+    </div>
+    <button style="background:#f1f5f9;color:#94a3b8;margin-top:14px;font-size:12.5px;padding:8px" onclick="resetAll()">🔄 重置系統資料</button>
+  </div>
+</div>
+
+<div id="appView" style="display:none">
+  <header class="topbar">
+    <div class="brand"><span id="brandLogo">🏃</span><span id="brandName">長跑訓練記錄系統</span></div>
+    <div class="userbox">
+      <span id="whoami"></span>
+      <button class="btn-sm" id="settingsBtn" onclick="openSettings()">⚙️ 系統設定</button>
+      <button class="btn-sm" id="backupBtn" onclick="openBackup()">💾 備份</button>
+      <button class="btn-sm" onclick="openChangePwd()">修改密碼</button>
+      <button class="btn-sm" onclick="logout()">登出</button>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="main"></main>
+</div>
+
+<div id="modalHost"></div>
+
+<datalist id="pbDistList">
+  <option value="400m"></option><option value="800m"></option><option value="1000m"></option>
+  <option value="1500m"></option><option value="1600m"></option><option value="3000m"></option>
+  <option value="5000m"></option><option value="10000m"></option>
+  <option value="半程馬拉松"></option><option value="馬拉松"></option>
+</datalist>
+
+<script>
+/* =====================================================
+   安全儲存包裝（登入穩定性的關鍵）
+===================================================== */
+var safeStorage = {
+  set: function(k, v){ try{ localStorage.setItem(k, v); }catch(e){ console.warn('localStorage 儲存失敗', e); } },
+  get: function(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  remove: function(k){ try{ localStorage.removeItem(k); }catch(e){} },
+  sSet: function(k, v){ try{ sessionStorage.setItem(k, v); }catch(e){ console.warn('sessionStorage 儲存失敗', e); } },
+  sGet: function(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } },
+  sRemove: function(k){ try{ sessionStorage.removeItem(k); }catch(e){} }
+};
+
+/* =====================================================
+   基本工具
+===================================================== */
+var $ = function(id){ return document.getElementById(id); };
+var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+});};
+var num = function(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; };
+var uid = function(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); };
+function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function todayStr(){ return fmtDate(new Date()); }
+function secToMMSS(s){
+  if(s === null || s === undefined || isNaN(s) || s === '') return '';
+  s = Math.round(s);
+  var m = Math.floor(s/60), sec = s % 60;
+  return m + ':' + String(sec).padStart(2,'0');
+}
+function parsePace(str){
+  if(str === null || str === undefined) return 0;
+  str = String(str).trim();
+  if(!str) return 0;
+  if(str.indexOf(':') >= 0){
+    var p = str.split(':');
+    return (parseInt(p[0],10)||0) + (parseInt(p[1],10)||0)/60;
+  }
+  var n = parseFloat(str);
+  return isNaN(n) ? 0 : n;
+}
+function fmtPace(p){
+  if(!p || p <= 0) return '';
+  var m = Math.floor(p);
+  var s = Math.round((p - m) * 60);
+  if(s === 60) return (m+1) + ':00';
+  return m + ':' + String(s).padStart(2,'0');
+}
+function lap400(p){ if(!p || p <= 0) return ''; return secToMMSS(p * 24); }
+function parseTime(str){
+  if(str === null || str === undefined) return null;
+  str = String(str).trim();
+  if(!str) return null;
+  if(str.indexOf(':') >= 0){
+    var p = str.split(':');
+    return (parseInt(p[0],10)||0) * 60 + (parseInt(p[1],10)||0);
+  }
+  var n = parseFloat(str);
+  return isNaN(n) ? null : n;
+}
+function parseDurationMin(str){
+  if(str === null || str === undefined) return 0;
+  str = String(str).trim();
+  if(!str) return 0;
+  if(str.indexOf(':') >= 0){
+    var p = str.split(':').map(function(x){ return parseInt(x,10)||0; });
+    if(p.length === 2) return p[0] + (p[1]||0)/60;
+    if(p.length === 3) return p[0]*60 + p[1] + (p[2]||0)/60;
+  }
+  var n = parseFloat(str);
+  return isNaN(n) ? 0 : n;
+}
+function calcAge(birthday){
+  if(!birthday) return null;
+  var b = new Date(birthday);
+  if(isNaN(b.getTime())) return null;
+  var now = new Date();
+  var age = now.getFullYear() - b.getFullYear();
+  var md = now.getMonth() - b.getMonth();
+  if(md < 0 || (md === 0 && now.getDate() < b.getDate())) age--;
+  return age >= 0 && age < 130 ? age : null;
+}
+function typeTag(type){
+  if(type === 'interval') return '<span class="tag">間歇</span>';
+  if(type === 'timetrial') return '<span class="tag test">計時</span>';
+  return '<span class="tag ok">基礎</span>';
+}
+function genderTag(g){
+  if(!g) return '';
+  if(g === '男') return '<span class="tag male">男</span>';
+  if(g === '女') return '<span class="tag female">女</span>';
+  return '<span class="tag">' + esc(g) + '</span>';
+}
+
+/* =====================================================
+   距離名稱規範化
+===================================================== */
+function normalizeDistName(dist){
+  if(!dist) return '';
+  var raw = String(dist).trim();
+  var d = raw.toLowerCase().replace(/\s+/g,'');
+  if(/半馬|半程|half/.test(d)) return '半程馬拉松';
+  if(/全馬|馬拉松|marathon/.test(d)) return '馬拉松';
+  var m = d.match(/(\d+(?:\.\d+)?)\s*(k|km|公里|m|米)?/);
+  if(m){
+    var n = parseFloat(m[1]);
+    var unit = m[2] || '';
+    if(unit === 'k' || unit === 'km' || unit === '公里') n *= 1000;
+    if(n === 400) return '400m';
+    if(n === 800) return '800m';
+    if(n === 1000) return '1000m';
+    if(n === 1500) return '1500m';
+    if(n === 1600 || n === 1609) return '1600m';
+    if(n === 2000) return '2000m';
+    if(n === 3000) return '3000m';
+    if(n === 5000) return '5000m';
+    if(n === 10000) return '10000m';
+    if(n >= 20000 && n < 30000) return '半程馬拉松';
+    if(n >= 40000) return '馬拉松';
+    if(n >= 100) return n + 'm';
+  }
+  return raw;
+}
+/* 距離字串 → 公尺 */
+function distToMeters(distKey){
+  if(!distKey) return 0;
+  if(distKey === '400m') return 400;
+  if(distKey === '800m') return 800;
+  if(distKey === '1000m') return 1000;
+  if(distKey === '1500m') return 1500;
+  if(distKey === '1600m') return 1600;
+  if(distKey === '2000m') return 2000;
+  if(distKey === '3000m') return 3000;
+  if(distKey === '5000m') return 5000;
+  if(distKey === '10000m') return 10000;
+  if(distKey === '半程馬拉松') return 21097;
+  if(distKey === '馬拉松') return 42195;
+  var m = String(distKey).match(/^(\d+)m$/);
+  if(m) return parseInt(m[1],10);
+  return 0;
+}
+function getStudentPBAtDist(student, distKey){
+  if(!student || !student.profile) return null;
+  var pb = normalizePB(student.profile.pb);
+  var found = null;
+  for(var i=0;i<pb.length;i++){
+    if(normalizeDistName(pb[i].dist) === distKey){ found = pb[i]; break; }
+  }
+  if(!found) return null;
+  var t = parseTime(found.time);
+  return (t && t > 0) ? {sec:t, str:found.time, date:found.date||'', race:found.race||''} : null;
+}
+
+/* =====================================================
+   訓練建議引擎
+   - 從學生的 PB 中隨機選一項作為基準
+   - 用 Riegel 公式換算 5000m 等效成績
+   - 用 Daniels 系統推算各訓練配速（VDOT 內部使用，不顯示）
+===================================================== */
+
+/* 最大心率估算 */
+function estimateMaxHR(gender, age){
+  if(!age || age <= 0) age = 25;
+  var hr;
+  if(gender === '女') hr = 226 - age;
+  else hr = 223 - 0.9 * age;
+  if(age < 18) hr = 208 - 0.7 * age;
+  return Math.round(hr);
+}
+
+/* 隨機選一項 PB 作為基準，回傳 5000m 等效秒數 */
+function pickRandomPBAs5000(user){
+  var pbList = normalizePB(user.profile && user.profile.pb).filter(function(p){
+    return p.dist && p.time && parseTime(p.time) > 0;
+  });
+  if(!pbList.length) return null;
+
+  var idx = Math.floor(Math.random() * pbList.length);
+  var p = pbList[idx];
+  var tSec = parseTime(p.time);
+  var distKey = normalizeDistName(p.dist);
+  var distM = distToMeters(distKey);
+  if(!distM || !tSec) return null;
+
+  /* Riegel 公式：T2 = T1 × (D2/D1)^1.06 */
+  var t5000 = tSec * Math.pow(5000/distM, 1.06);
+
+  return {
+    distKey: distKey,
+    timeSec: tSec,
+    timeStr: p.time,
+    date: p.date || '',
+    race: p.race || '',
+    equiv5000: t5000
+  };
+}
+
+/* 從 5000m 成績估算 VDOT（僅內部使用） */
+function estimateVDOT(sec5000, age, gender){
+  if(!sec5000 || sec5000 <= 0){
+    if(age && age < 14) return 30;
+    if(age && age < 18) return 36;
+    if(gender === '女') return 32;
+    return 38;
+  }
+  var minutes = sec5000 / 60;
+  var velocity = 5000 / minutes;
+  var pctVO2 = 0.8 + 0.1894393 * Math.exp(-0.012778 * minutes)
+             + 0.2989558 * Math.exp(-0.1932605 * minutes);
+  var vo2 = -4.60 + 0.182258 * velocity + 0.000104 * velocity * velocity;
+  var vdot = vo2 / pctVO2;
+  if(age && age > 30) vdot *= Math.pow(0.997, age - 30);
+  return Math.round(vdot * 10) / 10;
+}
+
+/* 依 VDOT 取得各訓練配速 */
+function getTrainingPaces(vdot){
+  var table = [
+    {vdot:20,easy:[8.2,9.0],marathon:7.2,threshold:6.6,interval:6.0,rep:5.5},
+    {vdot:25,easy:[7.2,7.9],marathon:6.3,threshold:5.8,interval:5.3,rep:4.8},
+    {vdot:30,easy:[6.5,7.1],marathon:5.7,threshold:5.2,interval:4.8,rep:4.3},
+    {vdot:35,easy:[5.9,6.5],marathon:5.2,threshold:4.7,interval:4.3,rep:3.9},
+    {vdot:40,easy:[5.4,5.9],marathon:4.7,threshold:4.3,interval:3.9,rep:3.5},
+    {vdot:45,easy:[5.0,5.5],marathon:4.3,threshold:3.9,interval:3.6,rep:3.2},
+    {vdot:50,easy:[4.6,5.1],marathon:3.9,threshold:3.6,interval:3.3,rep:2.9},
+    {vdot:55,easy:[4.3,4.7],marathon:3.6,threshold:3.3,interval:3.0,rep:2.7},
+    {vdot:60,easy:[4.0,4.4],marathon:3.3,threshold:3.1,interval:2.8,rep:2.5},
+    {vdot:65,easy:[3.7,4.1],marathon:3.1,threshold:2.9,interval:2.6,rep:2.3},
+    {vdot:70,easy:[3.5,3.9],marathon:2.9,threshold:2.7,interval:2.4,rep:2.1},
+    {vdot:75,easy:[3.3,3.6],marathon:2.7,threshold:2.5,interval:2.2,rep:1.9},
+    {vdot:80,easy:[3.1,3.4],marathon:2.5,threshold:2.3,interval:2.0,rep:1.8}
+  ];
+  var v = Math.max(20, Math.min(80, vdot));
+  var lo = table[0], hi = table[table.length-1];
+  for(var i=0;i<table.length-1;i++){
+    if(v >= table[i].vdot && v <= table[i+1].vdot){ lo = table[i]; hi = table[i+1]; break; }
+  }
+  var ratio = hi.vdot === lo.vdot ? 0 : (v - lo.vdot) / (hi.vdot - lo.vdot);
+  function lerp(a,b){ return a + (b-a) * ratio; }
+  return {
+    easyLo: lerp(lo.easy[0], hi.easy[0]),
+    easyHi: lerp(lo.easy[1], hi.easy[1]),
+    marathon: lerp(lo.marathon, hi.marathon),
+    threshold: lerp(lo.threshold, hi.threshold),
+    interval: lerp(lo.interval, hi.interval),
+    rep: lerp(lo.rep, hi.rep)
+  };
+}
+
+/* 產生訓練建議 */
+function generateTrainingAdvice(type, durationMin, user, basePB){
+  var p = user.profile || {};
+  var age = calcAge(p.birthday) || 20;
+  var gender = p.gender || '男';
+  var maxHR = estimateMaxHR(gender, age);
+
+  /* 若有選中的 PB 就以其為基準；否則使用預設保守值 */
+  var equiv5000 = basePB ? basePB.equiv5000 : null;
+  var vdot = estimateVDOT(equiv5000, age, gender);
+  var paces = getTrainingPaces(vdot);
+
+  var warmupMin = Math.max(8, Math.round(durationMin * 0.15));
+  var cooldownMin = Math.max(5, Math.round(durationMin * 0.1));
+  var mainMin = durationMin - warmupMin - cooldownMin;
+  var isYouth = age < 16;
+  var maxIntensityPct = isYouth ? 0.85 : 0.95;
+
+  var advice = {
+    type: type, duration: durationMin, age: age, gender: gender,
+    maxHR: maxHR, paces: paces,
+    warmupMin: warmupMin, cooldownMin: cooldownMin, mainMin: mainMin,
+    basePB: basePB,
+    segments: []
+  };
+
+  advice.segments.push({
+    title: '🔥 熱身',
+    duration: warmupMin + ' 分鐘',
+    body: '輕鬆慢跑 ' + warmupMin + ' 分鐘（Z1-Z2 心率，約 ' +
+      Math.round(maxHR*0.55) + '~' + Math.round(maxHR*0.70) + ' bpm）\n' +
+      '動態伸展：高抬腿 ×20、開合跳 ×20、弓步走 ×10、側向跨步 ×10'
+  });
+
+  if(type === 'core'){
+    var rounds = Math.max(2, Math.round(mainMin / 8));
+    advice.segments.push({
+      title: '🎯 核心訓練',
+      duration: mainMin + ' 分鐘',
+      body: '共 ' + rounds + ' 輪循環，動作間休 30 秒，輪與輪間休 60 秒\n\n' +
+        '① 平板支撐 ' + (age < 16 ? '40 秒' : '60 秒') + '\n' +
+        '② 臀橋 ×15\n' +
+        '③ 側平板（左右各）' + (age < 16 ? '25 秒' : '35 秒') + '\n' +
+        '④ 死蟲式 ×12\n' +
+        '⑤ 鳥狗式 ×10（每側）\n' +
+        '⑥ 登山者 ×20'
+    });
+  } else if(type === 'strength'){
+    var sets = Math.max(2, Math.round(mainMin / 10));
+    advice.segments.push({
+      title: '💪 力量(肌力)訓練',
+      duration: mainMin + ' 分鐘',
+      body: '每個動作 ' + sets + ' 組 × ' + (age < 16 ? '10' : '8~12') + ' 次，組間休 60~90 秒\n\n' +
+        '① 深蹲（可加負重）\n' +
+        '② 弓箭步分腿跳\n' +
+        '③ 臀橋單腿\n' +
+        '④ 跳箱 / 登階\n' +
+        '⑤ 小腿提踵\n' +
+        '⑥ 棒式划船（啞鈴/彈力帶）'
+    });
+  } else if(type === 'interval'){
+    var ivPace = paces.interval;
+    var lapDist = age < 16 ? 400 : 800;
+    var lapTimeSec = Math.round(ivPace * (lapDist/1000) * 60);
+    var restSec = Math.round(lapTimeSec * (age < 16 ? 1.0 : 0.75));
+    var totalWorkSec = mainMin * 60 * 0.6;
+    var reps = Math.max(4, Math.min(20, Math.floor(totalWorkSec / (lapTimeSec + restSec))));
+    advice.segments.push({
+      title: '⚡ 間歇訓練（VO2max）',
+      duration: mainMin + ' 分鐘',
+      body: '每組 ' + lapDist + 'm × ' + reps + ' 組\n\n' +
+        '目標每組時間：' + secToMMSS(lapTimeSec) + '（配速 ' + fmtPace(ivPace) + '/km）\n' +
+        '每組休息：' + secToMMSS(restSec) + '（慢跑恢復）\n' +
+        '強度：Z5 心率 ' + Math.round(maxHR*0.90) + '~' + Math.round(maxHR*maxIntensityPct) + ' bpm\n\n' +
+        '💡 若感覺太吃力可延長休息 15 秒'
+    });
+  } else if(type === 'long'){
+    var longPace = (paces.easyLo + paces.easyHi) / 2;
+    var distKm = (mainMin / longPace).toFixed(1);
+    advice.segments.push({
+      title: '🏃 長距離訓練（LSD）',
+      duration: mainMin + ' 分鐘',
+      body: '目標距離約 ' + distKm + ' km\n\n' +
+        '配速：' + fmtPace(paces.easyLo) + '~' + fmtPace(paces.easyHi) +
+        ' /km（Z2 心率 ' + Math.round(maxHR*0.60) + '~' + Math.round(maxHR*0.70) + ' bpm）\n' +
+        '全程可輕鬆對話、鼻呼吸為主\n\n' +
+        '💡 長距離應佔每週總跑量的 20~25%'
+    });
+  } else if(type === 'threshold'){
+    var thPace = paces.threshold;
+    var cruiseDist = age < 16 ? 800 : 1600;
+    var cruiseTimeSec = Math.round(thPace * (cruiseDist/1000) * 60);
+    var repsTh = Math.max(3, Math.min(8, Math.floor((mainMin * 0.7) / (cruiseTimeSec/60))));
+    var restSecTh = age < 16 ? 90 : 60;
+    advice.segments.push({
+      title: '🌡️ 閾值訓練（乳酸門檻）',
+      duration: mainMin + ' 分鐘',
+      body: '巡航間歇：' + cruiseDist + 'm × ' + repsTh + ' 組\n\n' +
+        '目標每組時間：' + secToMMSS(cruiseTimeSec) + '（配速 ' + fmtPace(thPace) + '/km）\n' +
+        '每組休息：' + restSecTh + ' 秒\n' +
+        '強度：Z4 心率 ' + Math.round(maxHR*0.80) + '~' + Math.round(maxHR*0.90) + ' bpm\n\n' +
+        '💡 總工作量約 20~30 分鐘為宜'
+    });
+  } else {
+    advice.segments.push({
+      title: '🏋️ 素質訓練',
+      duration: mainMin + ' 分鐘',
+      body: '循環訓練 3 輪：\n\n' +
+        '① 跳繩 60 秒\n' +
+        '② 波比跳 ×10\n' +
+        '③ 深蹲跳 ×12\n' +
+        '④ 平板支撐 45 秒\n' +
+        '⑤ 高抬腿 30 秒\n' +
+        '⑥ 側向滑步 20 秒（每側）\n\n' +
+        '每動作間休 20 秒，每輪間休 90 秒'
+    });
+  }
+
+  advice.segments.push({
+    title: '🧘 緩和放鬆',
+    duration: cooldownMin + ' 分鐘',
+    body: '慢走或極慢跑 ' + cooldownMin + ' 分鐘\n' +
+      '靜態伸展：股四頭肌、腿後肌、小腿、髖屈肌各 30 秒 ×2\n' +
+      '深呼吸放鬆 1 分鐘'
+  });
+
+  return advice;
+}
+
+/* 渲染訓練建議 */
+function renderTrainingAdvice(advice){
+  var typeNames = {core:'核心訓練', strength:'力量(肌力)訓練', interval:'間歇訓練', long:'長距離訓練', threshold:'閾值訓練', fitness:'素質訓練'};
+  var html = '<div class="workout-card">' +
+    '<h3 style="color:var(--purple);margin-top:0">💡 訓練建議 — ' + (typeNames[advice.type]||advice.type) + '</h3>' +
+    '<p class="muted">總時長 ' + advice.duration + ' 分鐘　｜　預估最大心率 ' + advice.maxHR + ' bpm</p>';
+
+  /* 顯示基準 PB */
+  if(advice.basePB){
+    html += '<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13px;color:#92400e">' +
+      '🎯 本次以你的 <b>' + esc(advice.basePB.distKey) + '</b> PB <b>' + esc(advice.basePB.timeStr) + '</b>' +
+      (advice.basePB.date ? '（'+esc(advice.basePB.date)+'）' : '') +
+      ' 作為訓練配速基準' +
+      '</div>';
+  } else {
+    html += '<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13px;color:#92400e">' +
+      '⚠️ 尚未填寫任何 PB，本次使用保守預設配速。建議先至「個人資料/PB」填寫最佳成績，以獲得更準確的建議。' +
+      '</div>';
+  }
+
+  /* 配速參考（不顯示 VDOT） */
+  html += '<div style="background:#faf5ff;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12.5px;color:#6b21a8">' +
+    '📐 配速參考：' +
+    '輕鬆跑 ' + fmtPace(advice.paces.easyLo) + '~' + fmtPace(advice.paces.easyHi) + '/km　｜　' +
+    '馬拉松配速 ' + fmtPace(advice.paces.marathon) + '/km　｜　' +
+    '閾值 ' + fmtPace(advice.paces.threshold) + '/km　｜　' +
+    '間歇 ' + fmtPace(advice.paces.interval) + '/km' +
+    '</div>';
+
+  advice.segments.forEach(function(seg){
+    html += '<div class="workout-seg">' +
+      '<div class="seg-title">' + seg.title + '　<span class="muted" style="font-weight:400">' + seg.duration + '</span></div>' +
+      '<div class="seg-body">' + seg.body.replace(/\n/g,'<br>') + '</div>' +
+      '</div>';
+  });
+
+  html += '<div class="row" style="margin-top:14px;margin-bottom:0">' +
+    '<button class="btn-purple" onclick="saveTrainingAdviceToRecord()">📥 存入今日紀錄</button>' +
+    '<button class="btn-ghost" onclick="go(\'advice\')">重新生成</button>' +
+    '</div></div>';
+  return html;
+}
+
+var LAST_ADVICE = null;
+
+function saveTrainingAdviceToRecord(){
+  if(!LAST_ADVICE) return;
+  var w = LAST_ADVICE;
+  var date = todayStr();
+  var existing = DB.records.find(function(r){ return r.userId === currentUser.id && r.date === date; });
+  var notes = w.segments.map(function(s){
+    return '【' + s.title + '】' + s.body.replace(/<[^>]*>/g,'').replace(/\n/g,' ');
+  }).join('\n');
+  if(w.basePB){
+    notes = '【訓練建議·基於 ' + w.basePB.distKey + ' PB ' + w.basePB.timeStr + '】\n' + notes;
+  }
+
+  var data = {
+    userId: currentUser.id, date: date,
+    type: w.type === 'interval' ? 'interval' : 'base',
+    start: '', end: '',
+    work: w.mainMin, distance: 0, pace: 0,
+    lapDist: 0, lapDists: [], lapTimes: [], sets: 0, targetTime: '', testDist: 0,
+    rpe: 0, stretch: false,
+    notes: notes,
+    ts: Date.now()
+  };
+
+  if(w.type === 'interval'){
+    var ivPace = w.paces.interval;
+    var lapDist = w.age < 16 ? 400 : 800;
+    data.lapDist = lapDist;
+    data.sets = Math.max(4, Math.round(w.mainMin * 0.6 * 60 / (ivPace * lapDist/1000 * 60 * 1.75)));
+    for(var i = 0; i < data.sets; i++){
+      data.lapDists.push(lapDist);
+      data.lapTimes.push(0);
+    }
+    data.distance = Math.round(data.sets * lapDist / 1000 * 100) / 100;
+  }
+
+  if(existing) Object.assign(existing, data);
+  else DB.records.push(Object.assign({id: uid()}, data));
+  saveDB();
+  alert('✅ 訓練建議已存入今日紀錄！可至「我的紀錄」查看。');
+  go('advice');
+}
+
+/* =====================================================
+   PB 工具
+===================================================== */
+function normalizePB(pb){
+  if(!pb) return [];
+  if(Array.isArray(pb)){
+    return pb.map(function(x){
+      return {id:x.id||uid(), dist:x.dist||'', time:x.time||'', date:x.date||'', race:x.race||''};
+    });
+  }
+  if(typeof pb === 'object'){
+    return Object.keys(pb).map(function(k){
+      return {id:uid(), dist:k, time:String(pb[k]||''), date:'', race:''};
+    });
+  }
+  return [];
+}
+var PB_EDIT = [];
+var PB_EDIT_USER = null;
+function addPBRow(){ PB_EDIT.push({id:uid(), dist:'', time:'', date:'', race:''}); renderPBEditor('pbEditor'); }
+function delPBRow(i){ PB_EDIT.splice(i,1); renderPBEditor('pbEditor'); }
+function renderPBEditor(hostId){
+  var host = document.getElementById(hostId);
+  if(!host) return;
+  if(!PB_EDIT.length){ host.innerHTML = '<div class="muted" style="padding:4px 0 12px">尚無 PB 紀錄，點下方「＋ 新增 PB」開始記錄。</div>'; return; }
+  host.innerHTML = PB_EDIT.map(function(p, i){
+    return '<div class="pbrow">' +
+      '<input value="' + esc(p.dist) + '" placeholder="距離（例：5000m）" list="pbDistList" oninput="PB_EDIT[' + i + '].dist=this.value">' +
+      '<input value="' + esc(p.time) + '" placeholder="時間（例：18:40）" oninput="PB_EDIT[' + i + '].time=this.value">' +
+      '<input type="date" value="' + esc(p.date||'') + '" oninput="PB_EDIT[' + i + '].date=this.value">' +
+      '<input value="' + esc(p.race) + '" placeholder="比賽名稱／備註" oninput="PB_EDIT[' + i + '].race=this.value">' +
+      '<button class="btn-sm danger" onclick="delPBRow(' + i + ')">刪除</button>' +
+      '</div>';
+  }).join('');
+}
+function cleanPB(){
+  return PB_EDIT.map(function(p){
+    return {id:p.id||uid(), dist:(p.dist||'').trim(), time:(p.time||'').trim(), date:p.date||'', race:(p.race||'').trim()};
+  }).filter(function(p){ return p.dist || p.time; });
+}
+
+/* =====================================================
+   資料層
+===================================================== */
+var DB_KEY = 'runlog_v2';
+var DB = null;
+var currentUser = null;
+var activeTab = null;
+var ADD_DATE = todayStr();
+var ATT_EDIT = null;
+var ADVICE_TYPE = 'interval';
+var ADVICE_DURATION = 45;
+var FORM_STATE = {};
+
+function saveDB(){ safeStorage.set(DB_KEY, JSON.stringify(DB)); }
+
+function ensureCoachUser(){
+  if(!Array.isArray(DB.users)) DB.users = [];
+  var c = null;
+  for(var i=0;i<DB.users.length;i++){
+    if(DB.users[i].role === 'coach'){ c = DB.users[i]; break; }
+  }
+  if(!c){
+    DB.users.unshift({id:'u_coach', username:'coach', password:'coach123', role:'coach',
+      name:(DB.settings && DB.settings.coachName) || '陳教練', profile:{}});
+    return;
+  }
+  if(!c.username) c.username = 'coach';
+  if(!c.password) c.password = 'coach123';
+  if(!c.name) c.name = (DB.settings && DB.settings.coachName) || '教練';
+}
+
+function defaultDB(){
+  var d = { settings:{appName:'長跑訓練記錄系統', logo:'🏃', coachName:'陳教練'}, users:[], trainingDays:{}, records:[], messages:[] };
+  d.users.push({id:'u_coach', username:'coach', password:'coach123', role:'coach', name:'陳教練', profile:{}});
+  var demo = [
+    {name:'王小明', gender:'男', grade:'中三A', birthday:'2010-03-15'},
+    {name:'李美華', gender:'女', grade:'中三B', birthday:'2010-07-22'},
+    {name:'張家豪', gender:'男', grade:'中四A', birthday:'2009-11-08'},
+    {name:'陳志強', gender:'男', grade:'中四B', birthday:'2009-05-30'},
+    {name:'林小雨', gender:'女', grade:'中五A', birthday:'2008-09-12'}
+  ];
+  for(var i=0;i<demo.length;i++){
+    var p = demo[i];
+    d.users.push({
+      id:'u_s'+(i+1), username:'s00'+(i+1), password:'1234', role:'student', name:p.name,
+      profile:{gender:p.gender, grade:p.grade, birthday:p.birthday, height:'', weight:'', pb:[]}
+    });
+  }
+  return d;
+}
+
+function initDB(){
+  var loaded = false;
+  try{
+    var raw = safeStorage.get(DB_KEY);
+    if(raw){
+      var parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === 'object' && Array.isArray(parsed.users)){
+        DB = parsed;
+        if(!DB.settings) DB.settings = {};
+        if(!DB.trainingDays || typeof DB.trainingDays !== 'object') DB.trainingDays = {};
+        if(!Array.isArray(DB.records)) DB.records = [];
+        if(!Array.isArray(DB.messages)) DB.messages = [];
+        ensureCoachUser();
+        saveDB();
+        loaded = true;
+      }
+    }
+  }catch(e){ console.warn('載入失敗，重建資料庫', e); }
+
+  if(!loaded){
+    DB = defaultDB();
+    try{ seedDemo(); }catch(e){ console.warn('示範資料失敗', e); }
+    ensureCoachUser();
+    saveDB();
+  }
+}
+
+function resetAll(){
+  if(!confirm('⚠️ 這會清除所有訓練紀錄、學生資料與留言，回復到初始狀態。\n\n確定要繼續嗎？')) return;
+  safeStorage.remove(DB_KEY);
+  safeStorage.sRemove('runlog_uid');
+  location.reload();
+}
+
+function seedDemo(){
+  var today = new Date();
+  var dates = [];
+  for(var i=63;i>=1;i--){
+    var d = new Date(today); d.setDate(d.getDate()-i);
+    var w = d.getDay();
+    if(w===2 || w===4 || w===6) dates.push(fmtDate(d));
+  }
+  var seed = 42;
+  function rnd(){ seed = (seed*9301+49297)%233280; return seed/233280; }
+  var studs = DB.users.filter(function(u){ return u.role === 'student'; });
+  var demoPB = [
+    {dist:'800m', time:'2:28', race:'校運會'},
+    {dist:'1500m', time:'5:05', race:'校際田徑賽'},
+    {dist:'3000m', time:'11:20', race:'區賽'},
+    {dist:'5000m', time:'18:45', race:'春季盃'},
+    {dist:'10000m', time:'40:00', race:'秋季長跑'}
+  ];
+  for(var si=0;si<studs.length;si++){
+    var s = studs[si];
+    s.profile.pb = demoPB.map(function(p, pi){
+      return {
+        id:uid(), dist:p.dist, time:p.time,
+        date:fmtDate(new Date(today.getFullYear(), (si+pi)%12, 5+si*2)),
+        race:p.race
+      };
+    });
+    if(s.profile.gender === '女'){
+      s.profile.pb.forEach(function(pb, idx){
+        var base = parseTime(pb.time);
+        if(base) pb.time = secToMMSS(base + 25 + idx*8);
+      });
+    }
+  }
+  for(var di=0;di<dates.length;di++){
+    var date = dates[di];
+    var mod = di % 9;
+    var plan;
+    if(mod === 7) plan = {type:'timetrial', dist:5000, note:'5000m 測驗'};
+    else if(mod % 3 === 1) plan = {type:'interval', dist:400, target:'1:35', sets:10};
+    else plan = {type:'base', pace:5.5, work:60};
+    DB.trainingDays[date] = {note: plan.type==='interval'?'間歇課':(plan.type==='timetrial'?'計時測試':'基礎課'), createdBy:'u_coach', plan:plan};
+    for(var sj=0;sj<studs.length;sj++){
+      var st = studs[sj];
+      if(rnd() < 0.85){
+        var rec = {id:uid(), userId:st.id, date:date, start:'17:00', end:'18:30',
+          rpe:4+Math.round(rnd()*6), stretch:rnd()<0.7, notes:'', ts:Date.now()};
+        if(plan.type === 'interval'){
+          var n = 8 + Math.round(rnd()*4);
+          var laps = [], dists = [];
+          for(var k=0;k<n;k++){ laps.push(85 + Math.round(rnd()*22)); dists.push(400); }
+          rec.type = 'interval';
+          rec.lapDist = 400; rec.sets = laps.length;
+          rec.lapTimes = laps; rec.lapDists = dists; rec.targetTime = '1:35';
+          rec.distance = Math.round(laps.length * 0.4 * 100) / 100;
+          rec.work = Math.round(laps.reduce(function(a,b){return a+b;},0) / 60 * 10) / 10;
+        } else if(plan.type === 'timetrial'){
+          var dist = 5000;
+          var totalSec = 1200 + Math.round(rnd()*180);
+          rec.type = 'timetrial';
+          rec.testDist = dist; rec.distance = dist/1000;
+          rec.work = Math.round(totalSec/60*100)/100;
+          rec.pace = (totalSec/60)/(dist/1000);
+        } else {
+          var work = 45 + Math.round(rnd()*40);
+          var pace = 5.2 + Math.round(rnd()*15)/10;
+          rec.type = 'base'; rec.work = work; rec.pace = Math.round(pace*100)/100;
+          rec.distance = Math.round((work/pace)*100)/100;
+        }
+        DB.records.push(rec);
+      }
+    }
+  }
+}
+
+/* =====================================================
+   備份
+===================================================== */
+function exportBackup(){
+  var payload = {
+    app: 'runlog_v2', version: 2,
+    exportedAt: new Date().toISOString(),
+    exportedBy: currentUser ? currentUser.username : 'unknown',
+    data: DB
+  };
+  var json = JSON.stringify(payload, null, 2);
+  var blob = new Blob([json], {type:'application/json;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var ts = new Date();
+  var stamp = ts.getFullYear() + String(ts.getMonth()+1).padStart(2,'0') + String(ts.getDate()).padStart(2,'0') + '_' + String(ts.getHours()).padStart(2,'0') + String(ts.getMinutes()).padStart(2,'0');
+  var a = document.createElement('a');
+  a.href = url; a.download = 'runlog_backup_' + stamp + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+}
+function importBackupFile(input){
+  var file = input.files && input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var parsed = JSON.parse(e.target.result);
+      var incoming = null;
+      if(parsed && parsed.data && Array.isArray(parsed.data.users)) incoming = parsed.data;
+      else if(parsed && Array.isArray(parsed.users)) incoming = parsed;
+      if(!incoming || !Array.isArray(incoming.users)){ alert('❌ 檔案格式不正確'); input.value=''; return; }
+      var counts = {
+        users: incoming.users.length,
+        records: Array.isArray(incoming.records) ? incoming.records.length : 0,
+        days: incoming.trainingDays ? Object.keys(incoming.trainingDays).length : 0,
+        messages: Array.isArray(incoming.messages) ? incoming.messages.length : 0
+      };
+      if(!confirm('確定要匯入此備份嗎？這將「完全覆蓋」現有資料。\n\n📊 備份內容：\n• 使用者：'+counts.users+' 位\n• 訓練紀錄：'+counts.records+' 筆\n• 訓練日：'+counts.days+' 天\n• 留言：'+counts.messages+' 則\n\n⚠️ 現有資料將被取代且無法復原。')){ input.value=''; return; }
+      DB = incoming;
+      if(!DB.settings) DB.settings = {};
+      if(!DB.trainingDays || typeof DB.trainingDays !== 'object') DB.trainingDays = {};
+      if(!Array.isArray(DB.records)) DB.records = [];
+      if(!Array.isArray(DB.messages)) DB.messages = [];
+      ensureCoachUser(); saveDB();
+      input.value = ''; closeModal();
+      alert('✅ 備份匯入成功！即將重新載入頁面。');
+      setTimeout(function(){ location.reload(); }, 400);
+    }catch(err){ alert('❌ 無法解析 JSON 檔案：' + err.message); input.value = ''; }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+function openBackup(){
+  $('modalHost').innerHTML = '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">' +
+    '<h2>💾 備份與還原</h2>' +
+    '<div style="background:#f0f9ff;border:1px dashed #7dd3fc;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13.5px;color:#0369a1">📌 定期匯出 JSON 備份，可避免資料遺失。</div>' +
+    '<h3 style="margin-top:0">📤 匯出備份</h3>' +
+    '<p class="muted" style="margin-top:-6px">將所有資料打包成 JSON 檔案下載。</p>' +
+    '<button class="btn-primary" style="margin-bottom:22px" onclick="exportBackup()">⬇️ 下載 JSON 備份檔</button>' +
+    '<h3>📥 匯入備份</h3>' +
+    '<p class="muted" style="margin-top:-6px">選擇先前匯出的 JSON 檔案，將完全取代現有資料。</p>' +
+    '<div style="background:#fef3c7;border:1px dashed #fbbf24;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#92400e">⚠️ 匯入會「完全覆蓋」現有資料且無法復原。</div>' +
+    '<input type="file" id="importFile" accept=".json,application/json" style="margin-bottom:14px" onchange="importBackupFile(this)">' +
+    '<div class="row" style="margin-bottom:0;border-top:1px solid var(--bd);padding-top:16px"><button class="btn-ghost" onclick="closeModal()">關閉</button></div>' +
+    '</div></div>';
+}
+
+/* =====================================================
+   設定
+===================================================== */
+function getSettings(){
+  if(!DB.settings) DB.settings = {};
+  var s = DB.settings;
+  if(!s.appName) s.appName = '長跑訓練記錄系統';
+  if(s.logo === undefined || s.logo === null) s.logo = '🏃';
+  if(!s.coachName){
+    var c = null;
+    for(var i=0;i<DB.users.length;i++){ if(DB.users[i].role === 'coach') c = DB.users[i]; }
+    s.coachName = c ? c.name : '教練';
+  }
+  return s;
+}
+function openSettings(){
+  var s = getSettings();
+  $('modalHost').innerHTML = '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">' +
+    '<h2>⚙️ 系統設定</h2>' +
+    '<label>系統名稱<input id="set_name" value="' + esc(s.appName) + '" maxlength="30"></label>' +
+    '<label>教練名稱<input id="set_coach" value="' + esc(s.coachName) + '" maxlength="20"></label>' +
+    '<div class="row" style="margin-bottom:0;border-top:1px solid var(--bd);padding-top:16px">' +
+    '<button class="btn-primary" onclick="saveSettings()">儲存</button>' +
+    '<button class="btn-ghost" onclick="closeModal()">取消</button></div>' +
+    '</div></div>';
+}
+function saveSettings(){
+  var s = getSettings();
+  s.appName = ($('set_name').value || '').trim() || '長跑訓練記錄系統';
+  s.coachName = ($('set_coach').value || '').trim() || '教練';
+  for(var i=0;i<DB.users.length;i++){
+    if(DB.users[i].role === 'coach') DB.users[i].name = s.coachName;
+  }
+  saveDB(); closeModal(); render();
+}
+function closeModal(){ $('modalHost').innerHTML = ''; }
+
+/* =====================================================
+   查詢
+===================================================== */
+function students(){ return DB.users.filter(function(u){ return u.role === 'student'; }); }
+function recsOf(id){ return DB.records.filter(function(r){ return r.userId === id; }); }
+function sumDist(arr){
+  return arr.reduce(function(a, r){ return a + (parseFloat(r.distance) || 0); }, 0);
+}
+function attendanceRate(userId, from, to){
+  var days = Object.keys(DB.trainingDays).filter(function(d){
+    return (!from || d >= from) && (!to || d <= to);
+  });
+  if(!days.length) return null;
+  var set = {};
+  DB.records.forEach(function(r){ if(r.userId === userId) set[r.date] = true; });
+  var present = days.filter(function(d){ return set[d]; }).length;
+  return present / days.length;
+}
+function recSummary(r){
+  if(!r) return '';
+  if(r.type === 'interval'){
+    var laps = r.lapTimes || [];
+    var sets = r.sets || laps.length || 0;
+    var str = sets + '組';
+    var distM = r.lapDist || 0;
+    if(distM > 0) str += ' × ' + distM + 'm';
+    var completed = 0, totalTime = 0;
+    for(var i=0;i<laps.length;i++){
+      var t = num(laps[i]);
+      if(t > 0){ completed++; totalTime += t; }
+    }
+    if(completed > 0){
+      str += ' · 已完成 ' + completed + '組';
+      if(totalTime > 0) str += ' · 平均 ' + secToMMSS(totalTime/completed);
+    } else {
+      str += ' · 尚未填寫成績';
+    }
+    return str;
+  }
+  if(r.type === 'timetrial'){
+    var Dm = r.testDist || Math.round((r.distance||0)*1000);
+    var tSec = (r.work||0) * 60;
+    return '計時測試 · ' + Dm + 'm · ' + (tSec > 0 ? secToMMSS(tSec) : '尚未填寫');
+  }
+  var work = r.work || 0;
+  return (work ? work.toFixed(1) : 0) + ' 分持續跑' + (r.pace ? ' · ' + fmtPace(r.pace) + '/km' : '');
+}
+
+/* =====================================================
+   登入 / 登出（強化版）
+===================================================== */
+function doLogin(){
+  try{
+    var uEl = $('loginUser');
+    var pEl = $('loginPass');
+    var msgEl = $('loginMsg');
+    var u = (uEl && uEl.value || '').trim();
+    var p = (pEl && pEl.value || '').trim();
+
+    if(!u || !p){
+      if(msgEl) msgEl.textContent = '請輸入帳號與密碼';
+      return;
+    }
+    if(!DB || !Array.isArray(DB.users)){
+      if(msgEl) msgEl.textContent = '資料異常，請點下方「重置系統資料」';
+      return;
+    }
+    var user = null;
+    for(var i=0;i<DB.users.length;i++){
+      if(DB.users[i].username === u && DB.users[i].password === p){ user = DB.users[i]; break; }
+    }
+    if(!user){
+      if(msgEl) msgEl.textContent = '帳號或密碼錯誤';
+      return;
+    }
+
+    /* 設定登入狀態 */
+    currentUser = user;
+
+    /* sessionStorage 可能因隱私設定拋錯，絕不能影響登入流程 */
+    safeStorage.sSet('runlog_uid', user.id);
+
+    if(msgEl) msgEl.textContent = '';
+
+    /* 進入主畫面 */
+    showApp();
+  }catch(err){
+    console.error('登入錯誤：', err);
+    var msgEl2 = $('loginMsg');
+    if(msgEl2) msgEl2.textContent = '登入錯誤：' + (err && err.message || err);
+  }
+}
+
+function showApp(){
+  try{
+    if(!currentUser){
+      alert('登入狀態異常，請重新登入');
+      return;
+    }
+    $('loginView').style.display = 'none';
+    $('appView').style.display = '';
+    activeTab = currentUser.role === 'coach' ? 'coachDays' : 'home';
+    ADD_DATE = todayStr();
+    ATT_EDIT = null;
+    render();
+  }catch(err){
+    console.error('顯示主畫面錯誤：', err);
+    alert('進入系統失敗：' + (err && err.message || err));
+  }
+}
+
+function logout(){
+  safeStorage.sRemove('runlog_uid');
+  currentUser = null;
+  $('appView').style.display = 'none';
+  $('loginView').style.display = 'flex';
+  if($('loginPass')) $('loginPass').value = '';
+  if($('loginMsg')) $('loginMsg').textContent = '';
+}
+function openChangePwd(){
+  var oldP = prompt('請輸入舊密碼：');
+  if(oldP === null) return;
+  if(oldP !== currentUser.password){ alert('❌ 舊密碼錯誤'); return; }
+  var np = prompt('請輸入新密碼（至少 4 位）：');
+  if(np === null) return;
+  if(np.length < 4){ alert('❌ 密碼至少需 4 位'); return; }
+  var np2 = prompt('請再輸入一次新密碼：');
+  if(np !== np2){ alert('❌ 兩次輸入不一致'); return; }
+  currentUser.password = np;
+  saveDB(); alert('✅ 密碼已更新');
+}
+
+/* =====================================================
+   主渲染
+===================================================== */
+var TABS = {
+  student: [
+    ['home','📊 我的統計'], ['add','➕ 新增紀錄'], ['advice','💡 訓練建議'],
+    ['myrec','📋 我的紀錄'], ['profile','👤 個人資料/PB'],
+    ['rank','🏆 排行榜'], ['board','💬 留言板']
+  ],
+  coach: [
+    ['coachDays','📅 訓練日管理'], ['coachAtt','✅ 出勤管理'], ['coachStats','📈 統計分析'],
+    ['coachPB','🥇 最佳成績'], ['rank','🏆 排行榜'], ['board','💬 留言板'], ['coachStudents','👥 學生管理']
+  ]
+};
+function go(tab){ activeTab = tab; render(); }
+
+function render(){
+  if(!currentUser) return;
+  try{
+    var s = getSettings();
+    var logoEl = $('brandLogo');
+    if(logoEl){
+      if(s.logo && String(s.logo).indexOf('data:') === 0) logoEl.innerHTML = '<img src="' + s.logo + '" alt="logo">';
+      else logoEl.innerHTML = '<span class="logo-emoji">' + esc(s.logo || '🏃') + '</span>';
+    }
+    $('brandName').textContent = s.appName;
+    $('settingsBtn').style.display = currentUser.role === 'coach' ? '' : 'none';
+    var roleName = currentUser.role === 'coach' ? '教練' : '學生';
+    var displayName = currentUser.role === 'coach' ? s.coachName : currentUser.name;
+    $('whoami').textContent = displayName + '（' + roleName + '）';
+
+    var tabs = TABS[currentUser.role] || TABS.student;
+    var found = false;
+    for(var i=0;i<tabs.length;i++){ if(tabs[i][0] === activeTab) found = true; }
+    if(!found) activeTab = tabs[0][0];
+    $('tabs').innerHTML = tabs.map(function(t){
+      return '<button class="' + (t[0] === activeTab ? 'active' : '') + '" onclick="go(\'' + t[0] + '\')">' + t[1] + '</button>';
+    }).join('');
+
+    var views = {
+      home: viewHome, add: viewAdd, myrec: viewMyRec, profile: viewProfile,
+      rank: viewRank, board: viewBoard, advice: viewAdvice,
+      coachDays: viewCoachDays, coachAtt: viewCoachAtt, coachStats: viewCoachStats,
+      coachPB: viewCoachPB, coachStudents: viewCoachStudents
+    };
+    var fn = views[activeTab];
+    if(fn) fn();
+  }catch(err){
+    console.error('render 錯誤', err);
+    $('main').innerHTML = '<div class="card"><h2>發生錯誤</h2><p class="muted">' + esc(err.message || err) + '</p></div>';
+  }
+}
+
+/* =====================================================
+   訓練建議視圖（原智慧課表）
+===================================================== */
+function viewAdvice(){
+  var p = currentUser.profile || {};
+  var age = calcAge(p.birthday);
+  var pbList = normalizePB(p.pb).filter(function(x){ return x.dist && x.time && parseTime(x.time) > 0; });
+  var pbCount = pbList.length;
+
+  var typeOptions = [
+    {v:'core',label:'🎯 核心訓練',desc:'強化軀幹穩定，預防受傷'},
+    {v:'strength',label:'💪 力量(肌力)訓練',desc:'提升跑步經濟性與爆發力'},
+    {v:'interval',label:'⚡ 間歇訓練',desc:'提升最大攝氧量與速度'},
+    {v:'long',label:'🏃 長距離訓練',desc:'建立有氧耐力基礎'},
+    {v:'threshold',label:'🌡️ 閾值訓練',desc:'提升乳酸清除能力與配速耐力'},
+    {v:'fitness',label:'🏋️ 素質訓練',desc:'綜合體能與協調性'}
+  ];
+
+  var html = '<div class="card">' +
+    '<h2>💡 訓練建議</h2>' +
+    '<p class="muted">根據您的性別、年齡、PB 與訓練時長，自動生成個人化訓練建議。每次進入會隨機選一項 PB 作為配速基準。</p>' +
+    '<div style="background:#f5f3ff;border:1px solid #e9d5ff;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13.5px;color:#6b21a8">' +
+    '📋 個人參數：' + esc(p.gender||'未填') + '　｜　' + (age===null?'年齡未填':age+' 歲') +
+    '　｜　PB 筆數：<b>' + pbCount + '</b>　｜　' +
+    '最大心率估算：<b>' + estimateMaxHR(p.gender, age) + ' bpm</b>' +
+    (pbCount === 0 ? '<br>⚠️ 尚未填寫任何 PB，系統將使用保守預設配速。建議先至「個人資料/PB」填寫最佳成績。' : '<br>💡 每次生成時會從您的 ' + pbCount + ' 項 PB 中隨機選一項作為配速基準。') +
+    '</div>' +
+
+    '<h3 style="margin-top:0">選擇訓練類型</h3>' +
+    '<div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:16px">' +
+    typeOptions.map(function(t){
+      return '<button class="' + (ADVICE_TYPE===t.v?'btn-purple':'btn-ghost') + '" ' +
+        'style="flex:1;min-width:140px;text-align:left;padding:10px 14px" ' +
+        'onclick="ADVICE_TYPE=\'' + t.v + '\';viewAdvice()">' +
+        '<div style="font-weight:600">' + t.label + '</div>' +
+        '<div style="font-size:11.5px;opacity:.7;margin-top:2px">' + t.desc + '</div></button>';
+    }).join('') +
+    '</div>' +
+
+    '<h3>選擇運動時長</h3>' +
+    '<div class="row" style="gap:8px">' +
+    [30,45,60,75,90,120].map(function(d){
+      return '<button class="' + (ADVICE_DURATION===d?'btn-primary':'btn-ghost') + '" ' +
+        'onclick="ADVICE_DURATION=' + d + ';viewAdvice()">' + d + ' 分鐘</button>';
+    }).join('') +
+    '</div>' +
+    '</div>';
+
+  /* 隨機選一項 PB 作為基準 */
+  var basePB = pickRandomPBAs5000(currentUser);
+
+  /* 產生訓練建議 */
+  var advice = generateTrainingAdvice(ADVICE_TYPE, ADVICE_DURATION, currentUser, basePB);
+  LAST_ADVICE = advice;
+  html += renderTrainingAdvice(advice);
+
+  $('main').innerHTML = html;
+}
+
+/* =====================================================
+   記錄表單（共用）
+===================================================== */
+function buildRecordForm(prefix, date, existing, plan){
+  var e = existing || {};
+  var p = plan || null;
+  var type = (p && p.type) ? p.type : (e.type || 'base');
+
+  var initLapDist = '';
+  if(e.type === 'interval' && e.lapDist) initLapDist = e.lapDist;
+  if(p && p.type === 'interval' && p.dist) initLapDist = p.dist;
+  if(e.type === 'interval' && e.lapDists && e.lapDists.length && e.lapDists[0]) initLapDist = e.lapDists[0];
+
+  var initTargetTime = '';
+  if(e.type === 'interval' && e.targetTime) initTargetTime = e.targetTime;
+  if(p && p.type === 'interval' && p.target) initTargetTime = p.target;
+
+  var initSets = 8;
+  if(p && p.type === 'interval' && p.sets) initSets = p.sets;
+  if(e.type === 'interval' && e.sets) initSets = e.sets;
+
+  var initTtDist = '', initTtTime = '';
+  if(e.type === 'timetrial'){
+    initTtDist = (e.testDist != null && e.testDist !== '') ? e.testDist : (e.distance ? Math.round(e.distance*1000) : '');
+    initTtTime = e.work ? secToMMSS(e.work*60) : '';
+  } else if(p && p.type === 'timetrial' && p.dist){
+    initTtDist = p.dist;
+  }
+
+  FORM_STATE[prefix] = {
+    type: type,
+    work: e.work || (p && p.type === 'base' && p.work) || '',
+    dist: e.distance || '',
+    pace: e.pace || (p && p.type === 'base' && p.pace) || '',
+    lapDist: initLapDist,
+    targetTime: initTargetTime,
+    sets: initSets,
+    lapTimes: (e.lapTimes || []).slice(),
+    lapDists: (e.lapDists || []).slice(),
+    ttDist: initTtDist,
+    ttTime: initTtTime
+  };
+  renderFormBody(prefix);
+}
+
+function renderFormBody(prefix){
+  var st = FORM_STATE[prefix];
+  var box = document.getElementById(prefix + '_body');
+  if(!box || !st) return;
+  var html = '';
+  if(st.type === 'base'){
+    var workVal = st.work ? fmtPace(num(st.work)) : '';
+    var distVal = st.dist ? Math.round(num(st.dist) * 1000) : '';
+    html += '<div class="grid3">' +
+      '<label>運動時間（分:秒）<input id="' + prefix + '_work" value="' + workVal + '" placeholder="45:00" oninput="syncBase(\'' + prefix + '\',\'work\')"></label>' +
+      '<label>距離（公尺）<input type="number" id="' + prefix + '_dist" value="' + distVal + '" step="1" min="0" placeholder="9000" oninput="syncBase(\'' + prefix + '\',\'dist\')"></label>' +
+      '<label>配速（分:秒／公里）<input id="' + prefix + '_pace" value="' + fmtPace(st.pace) + '" placeholder="5:30" oninput="syncBase(\'' + prefix + '\',\'pace\')"></label>' +
+      '</div><div class="calcbox" id="' + prefix + '_info"></div>';
+  } else if(st.type === 'interval'){
+    html += '<div class="grid3">' +
+      '<label>預設每組距離（公尺，選填）<input type="number" id="' + prefix + '_lapdist" value="' + (st.lapDist||'') + '" step="1" min="0" placeholder="例：400" oninput="FORM_STATE[\'' + prefix + '\'].lapDist=this.value;syncDefaultDist(\'' + prefix + '\')"></label>' +
+      '<label>目標每組時間（分:秒，選填）<input id="' + prefix + '_target" value="' + esc(st.targetTime) + '" placeholder="1:30" oninput="FORM_STATE[\'' + prefix + '\'].targetTime=this.value;renderLaps(\'' + prefix + '\')"></label>' +
+      '<label>組數（次數）<input type="number" id="' + prefix + '_sets" value="' + st.sets + '" min="1" max="60" step="1" onchange="FORM_STATE[\'' + prefix + '\'].sets=Math.max(1,+this.value||1);renderLaps(\'' + prefix + '\')"></label>' +
+      '</div><p class="muted" style="margin:-6px 0 10px">距離與目標時間可只填一項。</p>' +
+      '<div id="' + prefix + '_laps"></div><div class="calcbox" id="' + prefix + '_info"></div>';
+  } else {
+    html += '<div class="grid2">' +
+      '<label>距離（公尺）<input type="number" id="' + prefix + '_ttdist" value="' + (st.ttDist||'') + '" step="1" min="0" placeholder="例：5000" oninput="syncTimeTrial(\'' + prefix + '\')"></label>' +
+      '<label>時間（分:秒）<input id="' + prefix + '_tttime" value="' + esc(st.ttTime||'') + '" placeholder="20:30" oninput="syncTimeTrial(\'' + prefix + '\')"></label>' +
+      '</div><div class="calcbox" id="' + prefix + '_info"></div>';
+  }
+  box.innerHTML = html;
+  if(st.type === 'interval') renderLaps(prefix);
+  else if(st.type === 'timetrial') syncTimeTrial(prefix);
+  else syncBase(prefix, 'none');
+}
+
+function syncBase(prefix, changed){
+  var st = FORM_STATE[prefix];
+  var wEl = document.getElementById(prefix + '_work');
+  var dEl = document.getElementById(prefix + '_dist');
+  var pEl = document.getElementById(prefix + '_pace');
+  if(!wEl || !dEl || !pEl || !st) return;
+  var W = parseDurationMin(wEl.value), Dm = num(dEl.value), D = Dm/1000, P = parsePace(pEl.value);
+  if(changed === 'work'){
+    if(P > 0 && W > 0){ D = W/P; dEl.value = Math.round(D*1000); }
+    else if(D > 0 && W > 0){ P = W/D; pEl.value = fmtPace(P); }
+  } else if(changed === 'dist'){
+    if(W > 0 && D > 0){ P = W/D; pEl.value = fmtPace(P); }
+  } else if(changed === 'pace'){
+    if(W > 0 && P > 0){ D = W/P; dEl.value = Math.round(D*1000); }
+  }
+  st.work = W; st.dist = D; st.pace = P;
+  var info = document.getElementById(prefix + '_info');
+  if(info){
+    var msg = '';
+    if(W > 0 && D > 0 && P > 0) msg = '運動時間：<b>' + fmtPace(W) + '</b>　｜　距離：<b>' + Math.round(D*1000) + '</b> 公尺（' + D.toFixed(2) + ' km）　｜　平均配速：<b>' + fmtPace(P) + '</b> /km　｜　每 400 公尺：<b>' + lap400(P) + '</b>';
+    else if(P > 0) msg = '每 400 公尺應跑：<b>' + lap400(P) + '</b>';
+    info.innerHTML = msg || '請輸入運動時間、距離或配速';
+  }
+}
+
+function syncTimeTrial(prefix){
+  var st = FORM_STATE[prefix];
+  var dEl = document.getElementById(prefix + '_ttdist');
+  var tEl = document.getElementById(prefix + '_tttime');
+  var info = document.getElementById(prefix + '_info');
+  if(!dEl || !tEl || !info || !st) return;
+  var Dm = num(dEl.value), Tsec = parseTime(tEl.value);
+  st.ttDist = Dm || ''; st.ttTime = (Tsec !== null) ? secToMMSS(Tsec) : '';
+  var msg = '';
+  if(Dm > 0 && Tsec > 0){
+    var paceMin = (Tsec / (Dm/1000)) / 60;
+    var pace400 = Tsec / (Dm/400);
+    msg = '距離 <b>' + Dm + '</b> 公尺　｜　時間 <b>' + secToMMSS(Tsec) + '</b>　｜　平均配速 <b>' + fmtPace(paceMin) + '</b> /km　｜　每 400 公尺 <b>' + secToMMSS(pace400) + '</b>';
+  } else {
+    msg = '請輸入距離與時間';
+  }
+  if(Dm > 0 && currentUser && currentUser.role === 'student'){
+    var dKey = normalizeDistName(Dm + 'm');
+    var pb = getStudentPBAtDist(currentUser, dKey);
+    if(pb){
+      var diff = pb.sec - (Tsec || pb.sec);
+      var diffStr = Tsec ? (diff >= 0 ? '比 PB 慢 ' + secToMMSS(Math.abs(diff)) : '比 PB 快 ' + secToMMSS(Math.abs(diff))) : '';
+      msg += '<br>🎯 你的 ' + dKey + ' PB：<b>' + pb.str + '</b>' + (pb.date ? '（'+pb.date+'）' : '') + (diffStr ? '　｜　' + diffStr : '');
+    }
+  }
+  info.innerHTML = msg;
+}
+
+function getLapDist(st, i){ var v = st.lapDists[i]; if(v !== undefined && v !== null && v !== '') return num(v); return num(st.lapDist); }
+function getLapTime(st, i){ var t = st.lapTimes[i]; if(t === undefined || t === null) return 0; var n = num(t); return n > 0 ? n : 0; }
+function syncDefaultDist(prefix){
+  var st = FORM_STATE[prefix]; if(!st) return;
+  for(var i=0;i<st.sets;i++){
+    var el = document.getElementById(prefix + '_lapdist_' + i);
+    if(el){
+      var hasOwn = (st.lapDists[i] !== undefined && st.lapDists[i] !== null && st.lapDists[i] !== '');
+      if(!hasOwn) el.value = st.lapDist || '';
+    }
+    refreshLapPace(prefix, i);
+  }
+  updateLapInfo(prefix);
+}
+function onLapDistInput(prefix, i){
+  var st = FORM_STATE[prefix]; if(!st) return;
+  var el = document.getElementById(prefix + '_lapdist_' + i); if(!el) return;
+  st.lapDists[i] = el.value === '' ? '' : num(el.value);
+  refreshLapPace(prefix, i); updateLapInfo(prefix);
+}
+function onLapTimeTextInput(prefix, i){
+  var st = FORM_STATE[prefix]; if(!st) return;
+  var el = document.getElementById(prefix + '_laptime_' + i); if(!el) return;
+  var t = parseTime(el.value);
+  st.lapTimes[i] = (t === null || t <= 0) ? null : t;
+  refreshLapPace(prefix, i); updateLapInfo(prefix);
+}
+function refreshLapPace(prefix, i){
+  var st = FORM_STATE[prefix]; if(!st) return;
+  var el = document.getElementById(prefix + '_lappace_' + i); if(!el) return;
+  var d = getLapDist(st, i), t = getLapTime(st, i);
+  if(d > 0 && t > 0){
+    var paceSecPerKm = t / d * 1000;
+    el.textContent = fmtPace(paceSecPerKm / 60) + '/km';
+  } else el.textContent = '—';
+}
+function refreshAllLapPaces(prefix){
+  var st = FORM_STATE[prefix]; if(!st) return;
+  for(var i=0;i<st.sets;i++) refreshLapPace(prefix, i);
+}
+function renderLaps(prefix){
+  var st = FORM_STATE[prefix];
+  var box = document.getElementById(prefix + '_laps');
+  if(!box || !st) return;
+  var n = Math.max(1, Math.min(60, st.sets || 1));
+  var tgt = parseTime(st.targetTime);
+  var tgtStr = tgt ? secToMMSS(tgt) : '';
+  var defDist = num(st.lapDist) || '';
+  var html = '<label style="margin-top:8px">各組實際紀錄（共 ' + n + ' 組）</label><div style="overflow-x:auto"><table class="laptbl"><thead><tr>' +
+    '<th style="width:70px">組別</th><th>距離（公尺）</th><th>時間（分:秒）</th><th style="width:120px">每公里配速</th>' +
+    '</tr></thead><tbody>';
+  for(var i=0;i<n;i++){
+    var t = st.lapTimes[i];
+    var hasT = (t !== undefined && t !== null && num(t) > 0);
+    var timeStr = hasT ? secToMMSS(num(t)) : '';
+    var d = getLapDist(st, i);
+    var dVal = d > 0 ? d : '';
+    html += '<tr><td><b>第 ' + (i+1) + ' 組</b></td>' +
+      '<td><input type="number" id="' + prefix + '_lapdist_' + i + '" value="' + dVal + '" min="0" step="1" placeholder="' + (defDist||'400') + '" oninput="onLapDistInput(\'' + prefix + '\',' + i + ')"></td>' +
+      '<td><input id="' + prefix + '_laptime_' + i + '" value="' + timeStr + '" placeholder="' + (tgtStr||'1:21') + '" oninput="onLapTimeTextInput(\'' + prefix + '\',' + i + ')"></td>' +
+      '<td class="pacecell" id="' + prefix + '_lappace_' + i + '">—</td></tr>';
+  }
+  html += '</tbody></table></div>';
+  box.innerHTML = html;
+  refreshAllLapPaces(prefix);
+  updateLapInfo(prefix);
+}
+function updateLapInfo(prefix){
+  var st = FORM_STATE[prefix];
+  var info = document.getElementById(prefix + '_info');
+  if(!info || !st) return;
+  var completed = 0, totalDistM = 0, totalTimeSec = 0;
+  for(var i=0;i<st.sets;i++){
+    var d = getLapDist(st, i), t = getLapTime(st, i);
+    if(t > 0){ completed++; totalTimeSec += t; if(d > 0) totalDistM += d; }
+  }
+  var msg = '已完成 <b>' + completed + '</b> / ' + st.sets + ' 組';
+  if(totalDistM > 0) msg += '　｜　總距離 <b>' + totalDistM + '</b> 公尺（' + (totalDistM/1000).toFixed(2) + ' km）';
+  if(totalTimeSec > 0) msg += '　｜　總時間 <b>' + secToMMSS(totalTimeSec) + '</b>';
+  if(totalDistM > 0 && totalTimeSec > 0){
+    var avgPace = (totalTimeSec / (totalDistM/1000)) / 60;
+    msg += '　｜　平均配速 <b>' + fmtPace(avgPace) + '</b> /km';
+  }
+  info.innerHTML = msg;
+}
+
+function collectForm(prefix){
+  var st = FORM_STATE[prefix];
+  var rec = {type: st.type};
+  if(st.type === 'base'){
+    var W = num(st.work), D = num(st.dist), P = num(st.pace);
+    rec.work = W;
+    rec.distance = D || (P > 0 ? W/P : 0);
+    rec.pace = P || (D > 0 ? W/D : 0);
+    rec.lapDist = 0; rec.lapDists = []; rec.lapTimes = []; rec.sets = 0; rec.targetTime = ''; rec.testDist = 0;
+  } else if(st.type === 'timetrial'){
+    var Dm = num((document.getElementById(prefix + '_ttdist') || {}).value);
+    var Tsec = parseTime((document.getElementById(prefix + '_tttime') || {}).value);
+    var totalSec = (Tsec === null) ? 0 : Tsec;
+    rec.work = totalSec / 60;
+    rec.distance = Dm / 1000;
+    rec.pace = (Dm > 0 && totalSec > 0) ? (totalSec/60)/(Dm/1000) : 0;
+    rec.testDist = Dm;
+    rec.lapDist = 0; rec.lapDists = []; rec.lapTimes = []; rec.sets = 0; rec.targetTime = '';
+  } else {
+    var lapDist = num((document.getElementById(prefix + '_lapdist') || {}).value);
+    var sets = st.sets || 0;
+    var targetTime = st.targetTime || '';
+    var laps = [], lapDists = [];
+    var totalDistKm = 0, totalTimeSec = 0;
+    for(var i=0;i<sets;i++){
+      var d = getLapDist(st, i), t = getLapTime(st, i);
+      lapDists.push(d); laps.push(t);
+      if(t > 0){ totalTimeSec += t; if(d > 0) totalDistKm += d/1000; }
+    }
+    rec.lapDist = lapDist; rec.targetTime = targetTime;
+    rec.lapTimes = laps; rec.lapDists = lapDists; rec.sets = sets;
+    rec.distance = Math.round(totalDistKm * 100) / 100;
+    rec.work = Math.round(totalTimeSec / 60 * 10) / 10;
+    rec.pace = 0; rec.testDist = 0;
+  }
+  return rec;
+}
+
+/* =====================================================
+   學生：首頁
+===================================================== */
+function viewHome(){
+  var u = currentUser;
+  var recs = recsOf(u.id).slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  var now = new Date();
+  var ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  var y = String(now.getFullYear());
+  var mDist = sumDist(recs.filter(function(r){ return r.date.indexOf(ym) === 0; }));
+  var yDist = sumDist(recs.filter(function(r){ return r.date.indexOf(y) === 0; }));
+  var tDist = sumDist(recs);
+  var rate = attendanceRate(u.id);
+  var mRate = attendanceRate(u.id, ym + '-01', ym + '-31');
+  var recent = recs.slice(0, 5);
+  var todayPlan = DB.trainingDays[todayStr()];
+
+  $('main').innerHTML = '<div class="card">' +
+    '<h2>👋 你好，' + esc(u.name) + '</h2>' +
+    '<p class="muted">今天是 ' + todayStr() + '　' + (todayPlan ? '🔔 <b style="color:#16a34a">今天有訓練！</b>' : '今天沒有安排訓練') + '</p>' +
+    (todayPlan && todayPlan.plan ? renderPlanCard(todayPlan.plan, u) : '') +
+    '<div class="stats">' +
+    '<div class="stat"><div class="lbl">本月跑量</div><div class="val">' + mDist.toFixed(1) + '<small> km</small></div></div>' +
+    '<div class="stat"><div class="lbl">本年跑量</div><div class="val">' + yDist.toFixed(1) + '<small> km</small></div></div>' +
+    '<div class="stat"><div class="lbl">累積總跑量</div><div class="val">' + tDist.toFixed(1) + '<small> km</small></div></div>' +
+    '<div class="stat"><div class="lbl">總出席率</div><div class="val">' + (rate === null ? '—' : (rate*100).toFixed(0)) + '<small>' + (rate === null ? '' : ' %') + '</small></div></div>' +
+    '<div class="stat"><div class="lbl">本月出席率</div><div class="val">' + (mRate === null ? '—' : (mRate*100).toFixed(0)) + '<small>' + (mRate === null ? '' : ' %') + '</small></div></div>' +
+    '<div class="stat"><div class="lbl">訓練次數</div><div class="val">' + recs.length + '<small> 次</small></div></div>' +
+    '</div></div>' +
+    '<div class="card"><h2>🕐 最近訓練紀錄</h2>' +
+    (recent.length ? '<div class="tablewrap"><table class="tbl"><thead><tr><th>日期</th><th>類型</th><th>內容</th><th>距離(km)</th><th>RPE</th><th>放鬆</th></tr></thead><tbody>' +
+      recent.map(function(r){
+        return '<tr><td>' + r.date + '</td><td>' + typeTag(r.type) + '</td><td>' + esc(recSummary(r)) + '</td><td><b>' + (+r.distance || 0).toFixed(2) + '</b></td><td>' + (r.rpe || '-') + '</td><td>' + (r.stretch ? '✅' : '❌') + '</td></tr>';
+      }).join('') + '</tbody></table></div>' : '<div class="empty">尚無訓練紀錄</div>') +
+    '</div>';
+}
+
+function renderPlanCard(plan, student){
+  if(!plan || !plan.type) return '';
+  var content = '';
+  if(plan.type === 'base'){
+    content = '基礎訓練　｜　目標配速 <b>' + (fmtPace(plan.pace) || '—') + '</b> /km　｜　目標時間 <b>' + (fmtPace(plan.work) || '—') + '</b>';
+    if(plan.pace) content += '　｜　每 400 公尺 <b>' + lap400(plan.pace) + '</b>';
+  } else if(plan.type === 'timetrial'){
+    var parts = [];
+    if(plan.dist) parts.push('目標距離 <b>' + plan.dist + '</b> 公尺');
+    if(plan.note) parts.push(esc(plan.note));
+    if(!parts.length) parts.push('距離與時間自填');
+    content = '計時測試　｜　' + parts.join('　｜　');
+  } else {
+    var parts2 = [];
+    if(plan.dist) parts2.push('每組 <b>' + plan.dist + '</b> 公尺');
+    if(plan.target) parts2.push('目標 <b>' + esc(plan.target) + '</b>');
+    if(!parts2.length) parts2.push('內容自訂');
+    content = '間歇訓練　｜　' + parts2.join('　｜　') + '　｜　<b>' + (plan.sets || '—') + '</b> 組';
+  }
+  var extra = '';
+  if(plan.type === 'timetrial' && plan.dist && student){
+    var dKey = normalizeDistName(plan.dist + 'm');
+    var pb = getStudentPBAtDist(student, dKey);
+    if(pb){
+      var suggestSec = Math.round(pb.sec * 0.98);
+      extra = '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #fbbf24;font-size:13px">' +
+        '🎯 <b>' + esc(student.name) + '</b> 的 ' + esc(dKey) + ' PB：<span class="tag pb">' + esc(pb.str) + '</span>' + (pb.date ? '（' + esc(pb.date) + '）' : '') +
+        '　｜　💡 建議目標：<b style="color:#7c3aed">' + secToMMSS(suggestSec) + '</b>（PB 的 98%）' +
+        '</div>';
+    } else {
+      extra = '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #fbbf24;font-size:13px;color:#92400e">' +
+        '⚠️ 尚無 ' + esc(dKey) + ' PB 紀錄，請先至「個人資料/PB」填寫。</div>';
+    }
+  }
+  return '<div class="planbox">📋 教練訓練計劃：' + content + extra + '</div>';
+}
+
+/* =====================================================
+   學生：新增紀錄
+===================================================== */
+function viewAdd(){
+  var date = ADD_DATE || todayStr();
+  var day = DB.trainingDays[date];
+  var plan = (day && day.plan && day.plan.type) ? day.plan : null;
+  var existing = null;
+  for(var i=0;i<DB.records.length;i++){
+    if(DB.records[i].userId === currentUser.id && DB.records[i].date === date){ existing = DB.records[i]; break; }
+  }
+
+  $('main').innerHTML = '<div class="card">' +
+    '<h2>➕ ' + (existing ? '編輯' : '新增') + '訓練紀錄</h2>' +
+    '<p class="muted">儲存後當天即計為「出席」。</p>' +
+    '<div class="row"><label>日期 <input type="date" id="add_date" value="' + date + '" onchange="ADD_DATE=this.value;viewAdd();"></label></div>' +
+    (plan ? renderPlanCard(plan, currentUser) : '<p class="muted">ℹ️ 這天沒有教練設定的訓練計劃，請自行選擇類型。</p>') +
+    (!plan ? '<div class="row"><label>練習類型<select id="add_type" onchange="switchFormType(\'add\', this.value)">' +
+      '<option value="base">基礎跑（持續跑）</option>' +
+      '<option value="interval">間歇跑</option>' +
+      '<option value="timetrial">計時測試</option>' +
+      '</select></label></div>' : '') +
+    '<div class="grid2">' +
+    '<label>開始時間<input type="time" id="add_start" value="' + esc(existing && existing.start || '17:00') + '"></label>' +
+    '<label>結束時間<input type="time" id="add_end" value="' + esc(existing && existing.end || '18:30') + '"></label>' +
+    '</div>' +
+    '<div id="add_body"></div>' +
+    '<div class="grid2" style="margin-top:4px">' +
+    '<label class="checkline"><input type="checkbox" id="add_stretch" ' + (existing && existing.stretch ? 'checked' : '') + '> 放鬆運動／伸展有做</label>' +
+    '<label>辛苦程度 RPE：<b id="add_rpeVal">' + (existing && existing.rpe ? existing.rpe : 5) + '</b> / 10' +
+    '<input type="range" id="add_rpe" min="1" max="10" value="' + (existing && existing.rpe ? existing.rpe : 5) + '" oninput="document.getElementById(\'add_rpeVal\').textContent=this.value">' +
+    '</label></div>' +
+    '<label>備註<textarea id="add_notes" rows="2" placeholder="例：天氣炎熱、腳跟有點緊…">' + esc(existing && existing.notes || '') + '</textarea></label>' +
+    '<div class="row" style="margin-top:6px">' +
+    '<button class="btn-primary" onclick="saveStudentRecord()">儲存紀錄</button>' +
+    '<button class="btn-ghost" onclick="viewAdd()">重設</button>' +
+    '</div></div>';
+
+  buildRecordForm('add', date, existing, plan);
+  if(!plan && $('add_type')) $('add_type').value = FORM_STATE['add'].type;
+}
+function switchFormType(prefix, type){
+  var st = FORM_STATE[prefix]; if(!st) return;
+  st.type = type;
+  if(type === 'timetrial'){ if(st.ttDist === undefined) st.ttDist = ''; if(st.ttTime === undefined) st.ttTime = ''; }
+  renderFormBody(prefix);
+}
+function saveStudentRecord(){
+  var date = ADD_DATE || todayStr();
+  var rec = collectForm('add');
+  var existing = null;
+  for(var i=0;i<DB.records.length;i++){
+    if(DB.records[i].userId === currentUser.id && DB.records[i].date === date){ existing = DB.records[i]; break; }
+  }
+  var data = Object.assign({
+    userId: currentUser.id, date: date,
+    start: ($('add_start') || {}).value || '',
+    end: ($('add_end') || {}).value || '',
+    rpe: num(($('add_rpe') || {}).value),
+    stretch: ($('add_stretch') || {}).checked || false,
+    notes: (($('add_notes') || {}).value || '').trim(),
+    ts: Date.now()
+  }, rec);
+  if(existing) Object.assign(existing, data);
+  else DB.records.push(Object.assign({id: uid()}, data));
+  saveDB(); alert('✅ 紀錄已儲存！'); go('myrec');
+}
+
+/* =====================================================
+   學生：我的紀錄
+===================================================== */
+function viewMyRec(){
+  var u = currentUser;
+  var recs = recsOf(u.id).slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  if(!recs.length){
+    $('main').innerHTML = '<div class="card"><h2>📋 我的紀錄</h2><div class="empty">尚無紀錄，去「新增紀錄」建立第一筆吧！</div></div>';
+    return;
+  }
+  var html = '<div class="card"><h2>📋 我的紀錄 <span class="muted" style="font-weight:400">（共 ' + recs.length + ' 筆，總計 ' + sumDist(recs).toFixed(2) + ' km）</span></h2>' +
+    '<div class="tablewrap"><table class="tbl"><thead><tr>' +
+    '<th>日期</th><th>類型</th><th>時間</th><th>訓練內容</th><th>距離(km)</th>' +
+    '<th>配速</th><th>RPE</th><th>放鬆</th><th>備註</th><th></th>' +
+    '</tr></thead><tbody>';
+  recs.forEach(function(r){
+    var paceStr = '—';
+    if(r.type === 'timetrial' && r.pace > 0) paceStr = fmtPace(r.pace);
+    else if(r.type === 'base' && r.pace > 0) paceStr = fmtPace(r.pace);
+    else if(r.distance > 0 && r.work > 0) paceStr = fmtPace(r.work/r.distance);
+    html += '<tr>' +
+      '<td>' + r.date + '</td><td>' + typeTag(r.type) + '</td>' +
+      '<td>' + esc((r.start||'') + (r.end ? '~'+r.end : '')) + '</td>' +
+      '<td>' + esc(recSummary(r)) + '</td>' +
+      '<td><b>' + (+r.distance || 0).toFixed(2) + '</b></td>' +
+      '<td>' + paceStr + '</td><td>' + (r.rpe||'—') + '</td>' +
+      '<td>' + (r.stretch ? '✅' : '❌') + '</td><td>' + esc(r.notes||'') + '</td>' +
+      '<td><button class="btn-sm" onclick="editMyRecord(\'' + r.date + '\')">編輯</button>' +
+      '<button class="btn-sm danger" onclick="delRec(\'' + r.id + '\')">刪除</button></td>' +
+      '</tr>';
+  });
+  html += '</tbody></table></div></div>';
+  $('main').innerHTML = html;
+}
+function editMyRecord(date){ ADD_DATE = date; go('add'); }
+function delRec(id){
+  if(!confirm('確定刪除此紀錄？')) return;
+  DB.records = DB.records.filter(function(r){ return r.id !== id; });
+  saveDB(); render();
+}
+
+/* =====================================================
+   學生：個人資料 / PB
+===================================================== */
+function viewProfile(){
+  var u = currentUser, p = u.profile || {};
+  PB_EDIT = normalizePB(p.pb);
+  PB_EDIT_USER = null;
+  var age = calcAge(p.birthday);
+  $('main').innerHTML = '<div class="card">' +
+    '<h2>👤 個人基本資料</h2>' +
+    '<div class="grid3">' +
+    '<label>姓名<input id="p_name" value="' + esc(u.name) + '"></label>' +
+    '<label>性別<select id="p_gender"><option value="">未填</option><option ' + (p.gender === '男' ? 'selected' : '') + '>男</option><option ' + (p.gender === '女' ? 'selected' : '') + '>女</option></select></label>' +
+    '<label>班級<input id="p_grade" value="' + esc(p.grade||'') + '" placeholder="例：中三A"></label>' +
+    '<label>出生年月日<input type="date" id="p_birthday" value="' + esc(p.birthday||'') + '"></label>' +
+    '<label>年齡<input value="' + (age === null ? '' : age + ' 歲') + '" disabled></label>' +
+    '<label>帳號<input value="' + esc(u.username) + '" disabled></label>' +
+    '<label>身高 (cm)<input id="p_height" type="number" value="' + esc(p.height||'') + '"></label>' +
+    '<label>體重 (kg)<input id="p_weight" type="number" value="' + esc(p.weight||'') + '"></label>' +
+    '</div>' +
+    '<h3 style="margin-top:22px">🥇 個人最佳時間（PB）</h3>' +
+    '<p class="muted" style="margin-top:-6px">距離可自行填寫（如 3000m、5K、半馬），並記錄創下時間的日期與比賽名稱。</p>' +
+    '<div class="pbhead"><span>距離</span><span>時間</span><span>日期</span><span>比賽／備註</span><span></span></div>' +
+    '<div id="pbEditor"></div>' +
+    '<button class="btn-ghost" style="margin-bottom:18px" onclick="addPBRow()">＋ 新增 PB</button>' +
+    '<div style="border-top:1px solid var(--bd);padding-top:16px"><button class="btn-primary" onclick="saveProfile()">儲存全部資料</button></div>' +
+    '</div>';
+  renderPBEditor('pbEditor');
+}
+function saveProfile(){
+  var u = currentUser;
+  u.name = ($('p_name').value || '').trim() || u.name;
+  u.profile = {
+    gender: $('p_gender').value,
+    grade: ($('p_grade').value || '').trim(),
+    birthday: $('p_birthday').value,
+    height: $('p_height').value,
+    weight: $('p_weight').value,
+    pb: cleanPB()
+  };
+  saveDB(); alert('✅ 資料已儲存'); render();
+}
+
+/* =====================================================
+   排行榜
+===================================================== */
+function viewRank(){
+  var now = new Date();
+  var ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  $('main').innerHTML = '<div class="card"><h2>🏆 排行榜</h2>' +
+    '<div class="row">' +
+    '<label>快速範圍<select id="rk_preset" onchange="onRankPresetChange()">' +
+    '<option value="month">本月</option><option value="year">本年</option><option value="all">全部</option><option value="custom">自訂區間</option>' +
+    '</select></label>' +
+    '<span id="rk_custom" style="display:none">' +
+    '<input type="date" id="rk_from" value="' + ym + '-01" onchange="renderRank()"> ～ ' +
+    '<input type="date" id="rk_to" value="' + todayStr() + '" onchange="renderRank()">' +
+    '</span>' +
+    '<button class="btn-ghost" onclick="renderRank()">🔄 套用</button>' +
+    (currentUser.role === 'coach' ? '<button class="btn-warn" onclick="clearRankData()">🗑️ 一鍵清空排行榜</button>' : '') +
+    '</div><div id="rankOut"></div></div>';
+  renderRank();
+}
+function onRankPresetChange(){
+  var v = $('rk_preset').value;
+  $('rk_custom').style.display = v === 'custom' ? '' : 'none';
+  renderRank();
+}
+function renderRank(){
+  var mode = $('rk_preset').value;
+  var now = new Date();
+  var ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  var from = '', to = '', label = '';
+  if(mode === 'month'){ from = ym+'-01'; to = ym+'-31'; label = '本月'; }
+  else if(mode === 'year'){ from = now.getFullYear()+'-01-01'; to = now.getFullYear()+'-12-31'; label = '本年'; }
+  else if(mode === 'custom'){ from = $('rk_from').value; to = $('rk_to').value; label = from + ' ～ ' + to; }
+  else { label = '全部'; }
+  var days = Object.keys(DB.trainingDays).filter(function(d){ return (!from || d >= from) && (!to || d <= to); });
+  var rows = students().map(function(s){
+    var recs = DB.records.filter(function(r){ return r.userId === s.id && (!from || r.date >= from) && (!to || r.date <= to); });
+    var set = {};
+    DB.records.forEach(function(r){ if(r.userId === s.id) set[r.date] = true; });
+    var present = days.filter(function(d){ return set[d]; }).length;
+    return {s:s, dist:sumDist(recs), cnt:recs.length, rate: days.length ? present/days.length : null, present:present};
+  });
+  var byDist = rows.slice().sort(function(a,b){ return b.dist - a.dist; });
+  var byRate = rows.slice().sort(function(a,b){ return (b.rate == null ? -1 : b.rate) - (a.rate == null ? -1 : a.rate); });
+  function medal(i){ return ['🥇','🥈','🥉'][i] || '<span class="ranknum">' + (i+1) + '</span>'; }
+  var html = '<p class="muted">統計範圍：<b>' + label + '</b>　｜　訓練日總數：<b>' + days.length + '</b> 天</p>';
+  html += '<h3>📏 跑量排行榜（公里）</h3><div class="tablewrap"><table class="tbl"><thead><tr><th>名次</th><th>學生</th><th>班級</th><th>總距離 (km)</th><th>訓練次數</th></tr></thead><tbody>';
+  byDist.forEach(function(r, i){
+    html += '<tr><td class="medal">' + medal(i) + '</td><td>' + esc(r.s.name) + '</td><td>' + esc((r.s.profile && r.s.profile.grade) || '—') + '</td><td><b>' + r.dist.toFixed(2) + '</b></td><td>' + r.cnt + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  html += '<h3>✅ 出席率排行榜</h3><div class="tablewrap"><table class="tbl"><thead><tr><th>名次</th><th>學生</th><th>班級</th><th>出席率</th><th>出席／訓練日</th></tr></thead><tbody>';
+  byRate.forEach(function(r, i){
+    html += '<tr><td class="medal">' + medal(i) + '</td><td>' + esc(r.s.name) + '</td><td>' + esc((r.s.profile && r.s.profile.grade) || '—') + '</td><td><b>' + (r.rate === null ? '—' : (r.rate*100).toFixed(0) + '%') + '</b></td><td>' + r.present + ' / ' + days.length + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  $('rankOut').innerHTML = html;
+}
+function clearRankData(){
+  if(currentUser.role !== 'coach') return;
+  if(!confirm('⚠️ 這會刪除所有學生的訓練紀錄與訓練日資料，讓排行榜歸零。\n\n此操作無法復原，建議先匯出備份。確定要清空嗎？')) return;
+  if(!confirm('再次確認：確定要清空所有訓練紀錄嗎？')) return;
+  DB.records = [];
+  DB.trainingDays = {};
+  saveDB(); renderRank();
+  alert('✅ 排行榜資料已清空。');
+}
+
+/* =====================================================
+   留言板
+===================================================== */
+function viewBoard(){
+  var today = todayStr();
+  $('main').innerHTML = '<div class="card">' +
+    '<h2>💬 留言板</h2>' +
+    '<div class="row">' +
+    '<input type="date" id="b_date" value="' + today + '" onchange="renderMsgs()">' +
+    '<input id="b_text" placeholder="輸入留言…" style="flex:1;min-width:180px" onkeydown="if(event.key===\'Enter\')addMsg()">' +
+    '<button class="btn-primary" onclick="addMsg()">發送</button>' +
+    '</div>' +
+    '<label class="checkline"><input type="checkbox" id="b_all" onchange="renderMsgs()"> 顯示全部日期</label>' +
+    '</div><div id="msgList"></div>';
+  renderMsgs();
+}
+function addMsg(){
+  var text = ($('b_text').value || '').trim();
+  if(!text){ alert('請輸入留言內容'); return; }
+  var s = getSettings();
+  var displayName = currentUser.role === 'coach' ? s.coachName : currentUser.name;
+  DB.messages.push({id:uid(), userId:currentUser.id, name:displayName, role:currentUser.role,
+    date:$('b_date').value||todayStr(), text:text, ts:Date.now()});
+  saveDB(); $('b_text').value = ''; renderMsgs();
+}
+function delMsg(id){
+  if(!confirm('刪除此留言？')) return;
+  DB.messages = DB.messages.filter(function(m){ return m.id !== id; });
+  saveDB(); renderMsgs();
+}
+function renderMsgs(){
+  var all = $('b_all').checked, d = $('b_date').value;
+  var msgs = DB.messages.slice();
+  if(!all) msgs = msgs.filter(function(m){ return m.date === d; });
+  msgs.sort(function(a,b){ return b.date.localeCompare(a.date) || b.ts - a.ts; });
+  if(!msgs.length){ $('msgList').innerHTML = '<div class="card empty">暫無留言</div>'; return; }
+  var groups = {};
+  msgs.forEach(function(m){ (groups[m.date] = groups[m.date]||[]).push(m); });
+  var html = '';
+  Object.keys(groups).sort().reverse().forEach(function(date){
+    html += '<div class="card"><h3>📅 ' + date + '</h3>';
+    groups[date].forEach(function(m){
+      var canDel = m.userId === currentUser.id || currentUser.role === 'coach';
+      html += '<div class="msg ' + (m.role === 'coach' ? 'coach' : '') + '">' +
+        '<div class="msg-head">' +
+        '<b>' + esc(m.name) + '</b>' +
+        '<span class="tag ' + (m.role === 'coach' ? 'ok' : '') + '">' + (m.role === 'coach' ? '教練' : '學生') + '</span>' +
+        '<span class="muted">' + new Date(m.ts).toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}) + '</span>' +
+        (canDel ? '<button class="btn-sm danger" onclick="delMsg(\'' + m.id + '\')">刪除</button>' : '') +
+        '</div>' +
+        '<div class="msg-body">' + esc(m.text) + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+  });
+  $('msgList').innerHTML = html;
+}
+
+/* =====================================================
+   教練：訓練日管理（含計時測試 PB 預覽）
+===================================================== */
+function viewCoachDays(){
+  $('main').innerHTML = '<div class="card">' +
+    '<h2>📅 訓練日管理</h2>' +
+    '<p class="muted">設定哪幾天有訓練，並指定當天的訓練類型與目標。學生的出席率 = 有訓練紀錄的訓練日 ÷ 總訓練日數。</p>' +
+    '<div class="row">' +
+    '<label>日期 <input type="date" id="d_date" value="' + todayStr() + '"></label>' +
+    '<label>備註 <input id="d_note" placeholder="例：間歇課 / 長課" style="min-width:180px"></label>' +
+    '</div>' +
+    '<div class="row">' +
+    '<label>訓練類型<select id="d_type" onchange="toggleDayFields()">' +
+    '<option value="base">基礎訓練（持續跑）</option>' +
+    '<option value="interval">間歇訓練</option>' +
+    '<option value="timetrial">計時測試</option>' +
+    '</select></label></div>' +
+    '<div id="d_base">' +
+    '<div class="grid2">' +
+    '<label>目標配速（分:秒／公里）<input id="d_pace" placeholder="5:30"></label>' +
+    '<label>目標時間（分:秒，例：45:00）<input id="d_work" placeholder="45:00"></label>' +
+    '</div></div>' +
+    '<div id="d_int" style="display:none">' +
+    '<div class="grid3">' +
+    '<label>每組距離（公尺，選填）<input type="number" id="d_dist" step="1" min="0" placeholder="例：400"></label>' +
+    '<label>目標每組時間（分:秒，選填）<input id="d_target" placeholder="例：1:30"></label>' +
+    '<label>組數（次數）<input type="number" id="d_sets" value="10" min="1" step="1"></label>' +
+    '</div></div>' +
+    '<div id="d_tt" style="display:none">' +
+    '<div class="grid2">' +
+    '<label>目標距離（公尺）<input type="number" id="d_ttdist" step="1" min="0" placeholder="例：5000" oninput="updateTimetrialPBPreview()"></label>' +
+    '<label>測試說明（選填）<input id="d_ttnote" placeholder="例：5000m 計時測驗"></label>' +
+    '</div>' +
+    '<p class="muted" style="margin:-6px 0 10px">💡 輸入距離後，系統會自動列出所有學生在該距離的 PB，方便您為每位運動員設定合理目標。</p>' +
+    '<div id="tt_pb_preview"></div>' +
+    '</div>' +
+    '<div class="row" style="margin-top:6px"><button class="btn-primary" onclick="saveTrainingDay()">儲存訓練日</button></div>' +
+    '<div id="dayList"></div>' +
+    '</div>';
+  renderDayList();
+  updateTimetrialPBPreview();
+}
+function toggleDayFields(){
+  var t = $('d_type').value;
+  $('d_base').style.display = t === 'base' ? '' : 'none';
+  $('d_int').style.display = t === 'interval' ? '' : 'none';
+  $('d_tt').style.display = t === 'timetrial' ? '' : 'none';
+  if(t === 'timetrial') updateTimetrialPBPreview();
+}
+
+function updateTimetrialPBPreview(){
+  var box = $('tt_pb_preview');
+  if(!box) return;
+  var distInput = $('d_ttdist');
+  if(!distInput){ box.innerHTML = ''; return; }
+  var distM = num(distInput.value);
+  if(distM <= 0){ box.innerHTML = ''; return; }
+
+  var distKey = normalizeDistName(distM + 'm');
+  var studentList = students();
+
+  var html = '<div class="previewbox">' +
+    '<h4>📊 各學生 ' + distM + 'm PB 參考（共 ' + studentList.length + ' 人）</h4>' +
+    '<div class="tablewrap" style="margin-top:6px"><table class="tbl" style="min-width:640px"><thead><tr>' +
+    '<th>學生</th><th>班級</th><th>性別</th><th>年齡</th>' +
+    '<th>' + esc(distKey) + ' PB</th><th>建議目標</th><th>PB 日期</th>' +
+    '</tr></thead><tbody>';
+
+  var withPB = 0;
+  studentList.forEach(function(s){
+    var p = s.profile || {};
+    var age = calcAge(p.birthday);
+    var pb = getStudentPBAtDist(s, distKey);
+    var pbStr = '—', suggestStr = '—', dateStr = '—';
+    if(pb){
+      withPB++;
+      pbStr = '<span class="tag pb">' + esc(pb.str) + '</span>';
+      var suggestSec = Math.round(pb.sec * 0.98);
+      suggestStr = '<b style="color:#7c3aed">' + secToMMSS(suggestSec) + '</b>';
+      dateStr = esc(pb.date || '—');
+    }
+    html += '<tr>' +
+      '<td><b>' + esc(s.name) + '</b></td>' +
+      '<td>' + esc(p.grade||'—') + '</td>' +
+      '<td>' + (p.gender ? genderTag(p.gender) : '—') + '</td>' +
+      '<td>' + (age === null ? '—' : age + ' 歲') + '</td>' +
+      '<td>' + pbStr + '</td>' +
+      '<td>' + suggestStr + '</td>' +
+      '<td class="muted">' + dateStr + '</td>' +
+      '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += '<p class="muted" style="margin-top:8px">✅ 已有 ' + withPB + ' / ' + studentList.length + ' 位學生填寫此距離 PB。' +
+    (withPB === 0 ? '建議先請學生於「個人資料/PB」填寫最佳成績。' : '建議目標以 PB 的 98% 計算，可視學生狀況調整。') + '</p>';
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+function saveTrainingDay(){
+  var d = $('d_date').value; if(!d){ alert('請選擇日期'); return; }
+  var type = $('d_type').value;
+  var plan = {type: type};
+  if(type === 'base'){
+    plan.pace = parsePace($('d_pace').value);
+    plan.work = parseDurationMin($('d_work').value);
+    if(!plan.pace){ alert('請填寫目標配速'); return; }
+    if(!plan.work){ alert('請填寫目標時間'); return; }
+  } else if(type === 'interval'){
+    plan.dist = num($('d_dist').value) || 0;
+    plan.target = ($('d_target').value || '').trim();
+    plan.sets = num($('d_sets').value);
+    if(!plan.dist && !plan.target){ alert('請至少填寫每組距離或目標每組時間'); return; }
+    if(!plan.sets || plan.sets < 1){ alert('請填寫組數'); return; }
+  } else if(type === 'timetrial'){
+    plan.dist = num($('d_ttdist').value) || 0;
+    plan.note = ($('d_ttnote').value || '').trim();
+  }
+  DB.trainingDays[d] = {note: ($('d_note').value || '').trim(), createdBy: currentUser.id, plan: plan};
+  saveDB(); $('d_note').value = ''; renderDayList(); alert('✅ 已儲存訓練日：' + d);
+}
+function delTrainingDay(d){
+  if(!confirm('刪除訓練日 ' + d + '？')) return;
+  delete DB.trainingDays[d]; saveDB(); renderDayList();
+}
+function renderDayList(){
+  var days = Object.keys(DB.trainingDays).sort().reverse();
+  if(!days.length){ $('dayList').innerHTML = '<div class="empty">尚未設定任何訓練日</div>'; return; }
+  var html = '<div class="chips">';
+  days.forEach(function(d){
+    var t = DB.trainingDays[d];
+    var n = DB.records.filter(function(r){ return r.date === d; }).length;
+    var short = '';
+    if(t.plan && t.plan.type === 'base') short = '基礎 ' + fmtPace(t.plan.pace) + '/km · ' + fmtPace(t.plan.work);
+    else if(t.plan && t.plan.type === 'interval'){ var arr=[]; if(t.plan.dist) arr.push(t.plan.dist+'m'); if(t.plan.target) arr.push(t.plan.target); short = '間歇 ' + t.plan.sets + '×' + (arr.join('/') || '自訂'); }
+    else if(t.plan && t.plan.type === 'timetrial'){ short = '計時 ' + (t.plan.dist ? t.plan.dist + 'm' : '') + (t.plan.note ? ' ' + t.plan.note : ''); }
+    html += '<span class="chip">' + d + '<small>' + esc(short||'未設定') + ' · ' + esc(t.note||'') + ' · ' + n + '人</small><button class="x" onclick="delTrainingDay(\'' + d + '\')">×</button></span>';
+  });
+  html += '</div>'; $('dayList').innerHTML = html;
+}
+
+/* =====================================================
+   教練：出勤管理
+===================================================== */
+function viewCoachAtt(){
+  ATT_EDIT = null;
+  var dates = Object.keys(DB.trainingDays).sort().reverse();
+  $('main').innerHTML = '<div class="card">' +
+    '<h2>✅ 出勤管理</h2>' +
+    '<p class="muted">選擇日期後可標記／取消學生出席。間歇訓練以矩陣方式快速輸入各組時間。</p>' +
+    '<div class="row">' +
+    '<label>日期 <input type="date" id="a_date" value="' + todayStr() + '" onchange="ATT_EDIT=null;renderAttTable();"></label>' +
+    '<select id="a_quick" onchange="if(this.value){document.getElementById(\'a_date\').value=this.value;ATT_EDIT=null;renderAttTable();}">' +
+    '<option value="">快速選擇訓練日…</option>' +
+    dates.map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('') +
+    '</select>' +
+    '<button class="btn-ghost" onclick="markAllPresent()">全部標記出席</button>' +
+    '</div>' +
+    '<div id="attPlan"></div><div id="attTable"></div><div id="attEditPanel"></div>' +
+    '</div>';
+  renderAttTable();
+}
+
+function renderAttTable(){
+  var date = $('a_date').value;
+  if(!date){ $('attTable').innerHTML = '<div class="empty">請選擇日期</div>'; return; }
+  var day = DB.trainingDays[date];
+  var plan = day && day.plan ? day.plan : null;
+  $('attPlan').innerHTML = plan ? renderPlanCard(plan) : '';
+
+  if(plan && plan.type === 'interval'){ renderIntervalMatrix(date, plan); return; }
+
+  var isTrainingDay = !!day;
+  var html = '<p class="muted">' + (isTrainingDay ? '✅ 此日為訓練日' : '⚠️ 此日不是訓練日（仍可補登）') + ' — ' + date + '</p>';
+  html += '<div class="tablewrap"><table class="tbl"><thead><tr>' +
+    '<th>學生</th><th>班級</th><th>狀態</th><th>距離 (km)</th><th>訓練內容</th><th>RPE</th><th>操作</th>' +
+    '</tr></thead><tbody>';
+  students().forEach(function(s){
+    var recs = DB.records.filter(function(r){ return r.userId === s.id && r.date === date; });
+    var present = recs.length > 0;
+    var r0 = recs[0];
+    var pbHint = '';
+    if(plan && plan.type === 'timetrial' && plan.dist){
+      var dKey = normalizeDistName(plan.dist + 'm');
+      var pb = getStudentPBAtDist(s, dKey);
+      if(pb) pbHint = '　<span class="tag pb" title="' + dKey + ' PB">PB ' + esc(pb.str) + '</span>';
+    }
+    html += '<tr>' +
+      '<td>' + esc(s.name) + pbHint + '</td>' +
+      '<td>' + esc((s.profile && s.profile.grade) || '—') + '</td>' +
+      '<td>' + (present ? '<span class="tag ok">已記錄</span>' : '<span class="tag no">未記錄</span>') + '</td>' +
+      '<td>' + (present ? (+r0.distance || 0).toFixed(2) : '—') + '</td>' +
+      '<td>' + (present ? esc(recSummary(r0)) : '—') + '</td>' +
+      '<td>' + (present && r0.rpe ? r0.rpe : '—') + '</td>' +
+      '<td>' +
+      (present
+        ? '<button class="btn-sm" onclick="openAttEdit(\'' + s.id + '\',\'' + date + '\')">填寫紀錄</button>' +
+          '<button class="btn-sm danger" onclick="cancelAtt(\'' + s.id + '\',\'' + date + '\')">取消出席</button>'
+        : '<button class="btn-sm ok" onclick="addAtt(\'' + s.id + '\',\'' + date + '\')">標記出席</button>' +
+          '<button class="btn-sm" onclick="openAttEdit(\'' + s.id + '\',\'' + date + '\')">填寫紀錄</button>') +
+      '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  $('attTable').innerHTML = html;
+  renderAttEditPanel();
+}
+
+function renderIntervalMatrix(date, plan){
+  var sets = Math.max(1, Math.min(60, plan.sets || 10));
+  var defDist = plan.dist || 400;
+  var target = plan.target || '';
+
+  var html = '<p class="muted">✅ 此日為訓練日 — ' + date + '　｜　間歇訓練：<b>' + sets + '</b> 組 × <b>' + defDist + '</b>m' + (target ? '　｜　目標 ' + esc(target) : '') + '　｜　<span style="color:#0369a1">💡 直接在各欄輸入時間（分:秒），自動儲存</span></p>';
+  html += '<div class="matrix-wrap"><table class="matrix-table"><thead><tr>';
+  html += '<th style="min-width:90px">學生</th><th style="min-width:60px">班級</th><th style="min-width:70px">距離(m)</th>';
+  for(var i=0;i<sets;i++) html += '<th>第 ' + (i+1) + ' 組</th>';
+  html += '<th style="min-width:130px">合計</th></tr></thead><tbody>';
+
+  students().forEach(function(s){
+    var rec = DB.records.find(function(r){ return r.userId === s.id && r.date === date; });
+    var lapTimes = (rec && rec.lapTimes) ? rec.lapTimes : [];
+    var lapDists = (rec && rec.lapDists) ? rec.lapDists : [];
+    var dist = lapDists[0] || (rec && rec.lapDist) || defDist;
+
+    html += '<tr>';
+    html += '<td class="name">' + esc(s.name) + '</td>';
+    html += '<td>' + esc((s.profile && s.profile.grade) || '—') + '</td>';
+    html += '<td><input type="number" class="dist-input" value="' + dist + '" min="0" step="1" onchange="onMatrixDistChange(\'' + s.id + '\',\'' + date + '\',this.value)"></td>';
+
+    for(var k=0;k<sets;k++){
+      var t = lapTimes[k];
+      var hasT = t && num(t) > 0;
+      var timeStr = hasT ? secToMMSS(num(t)) : '';
+      html += '<td><input value="' + timeStr + '" placeholder="' + (target || '--:--') + '" onchange="onMatrixTimeChange(\'' + s.id + '\',\'' + date + '\',' + k + ',this.value)"></td>';
+    }
+
+    var completed = 0, totalTimeSec = 0, totalDistM = 0;
+    for(var j=0;j<sets;j++){
+      var tj = lapTimes[j];
+      if(tj && num(tj) > 0){ completed++; totalTimeSec += num(tj); totalDistM += (lapDists[j] || dist || 0); }
+    }
+    var avgPace = (totalTimeSec > 0 && totalDistM > 0) ? (totalTimeSec / (totalDistM/1000)) / 60 : 0;
+    html += '<td class="total-cell">' +
+      '<b>' + completed + '</b>/' + sets + ' 組<br>' +
+      (totalTimeSec > 0 ? secToMMSS(totalTimeSec) : '—') + '<br>' +
+      (totalDistM > 0 ? (totalDistM/1000).toFixed(2) + ' km' : '—') +
+      (avgPace > 0 ? '<br>' + fmtPace(avgPace) + '/km' : '') +
+      '</td></tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += '<div class="row" style="margin-top:14px"><button class="btn-ghost" onclick="clearMatrixTimes(\'' + date + '\')">清空本日所有時間</button></div>';
+
+  $('attTable').innerHTML = html;
+  $('attEditPanel').innerHTML = '';
+  ATT_EDIT = null;
+}
+
+function onMatrixTimeChange(userId, date, lapIndex, value){
+  var day = DB.trainingDays[date]; var plan = day ? day.plan : null;
+  if(!plan || plan.type !== 'interval') return;
+  var sets = Math.max(1, Math.min(60, plan.sets || 10));
+  var defDist = plan.dist || 400;
+  var rec = DB.records.find(function(r){ return r.userId === userId && r.date === date; });
+  if(!rec){
+    rec = {id:uid(), userId:userId, date:date, start:'', end:'', type:'interval', lapDist:defDist, sets:sets,
+      lapTimes:new Array(sets).fill(0), lapDists:new Array(sets).fill(defDist),
+      targetTime:plan.target||'', rpe:0, stretch:false, notes:'教練填寫',
+      distance:0, work:0, pace:0, testDist:0, ts:Date.now()};
+    DB.records.push(rec);
+  }
+  while(rec.lapTimes.length < sets) rec.lapTimes.push(0);
+  while(rec.lapDists.length < sets) rec.lapDists.push(rec.lapDist || defDist);
+  rec.lapTimes.length = sets; rec.lapDists.length = sets;
+  if(!rec.sets || rec.sets !== sets) rec.sets = sets;
+  if(!rec.lapDist) rec.lapDist = defDist;
+  var t = parseTime(value);
+  rec.lapTimes[lapIndex] = (t === null || t <= 0) ? 0 : t;
+  recalcIntervalRecord(rec); saveDB();
+  renderAttTable();
+}
+
+function onMatrixDistChange(userId, date, value){
+  var day = DB.trainingDays[date]; var plan = day ? day.plan : null;
+  if(!plan || plan.type !== 'interval') return;
+  var newDist = num(value); if(newDist <= 0) return;
+  var sets = Math.max(1, Math.min(60, plan.sets || 10));
+  var rec = DB.records.find(function(r){ return r.userId === userId && r.date === date; });
+  if(!rec){
+    rec = {id:uid(), userId:userId, date:date, start:'', end:'', type:'interval', lapDist:newDist, sets:sets,
+      lapTimes:new Array(sets).fill(0), lapDists:new Array(sets).fill(newDist),
+      targetTime:plan.target||'', rpe:0, stretch:false, notes:'教練填寫',
+      distance:0, work:0, pace:0, testDist:0, ts:Date.now()};
+    DB.records.push(rec);
+  } else {
+    rec.lapDist = newDist;
+    while(rec.lapDists.length < sets) rec.lapDists.push(newDist);
+    rec.lapDists.length = sets;
+    for(var i=0;i<sets;i++) rec.lapDists[i] = newDist;
+    while(rec.lapTimes.length < sets) rec.lapTimes.push(0);
+    rec.lapTimes.length = sets;
+  }
+  recalcIntervalRecord(rec); saveDB();
+  renderAttTable();
+}
+
+function recalcIntervalRecord(rec){
+  var sets = rec.sets || 0;
+  var totalTimeSec = 0, totalDistM = 0;
+  for(var i=0;i<sets;i++){
+    var t = rec.lapTimes[i] || 0;
+    var d = rec.lapDists[i] || rec.lapDist || 0;
+    if(t > 0){ totalTimeSec += t; if(d > 0) totalDistM += d; }
+  }
+  rec.work = Math.round(totalTimeSec / 60 * 10) / 10;
+  rec.distance = Math.round(totalDistM / 1000 * 100) / 100;
+  rec.pace = 0;
+}
+
+function clearMatrixTimes(date){
+  if(!confirm('確定清空 ' + date + ' 所有學生在間歇訓練中已輸入的時間？')) return;
+  var day = DB.trainingDays[date]; var plan = day ? day.plan : null;
+  if(!plan || plan.type !== 'interval') return;
+  var sets = Math.max(1, Math.min(60, plan.sets || 10));
+  DB.records.forEach(function(rec){
+    if(rec.date === date && rec.type === 'interval'){
+      rec.lapTimes = new Array(sets).fill(0);
+      while(rec.lapDists.length < sets) rec.lapDists.push(rec.lapDist || plan.dist || 400);
+      rec.lapDists.length = sets;
+      recalcIntervalRecord(rec);
+    }
+  });
+  saveDB(); renderAttTable();
+}
+
+function addAtt(userId, date){
+  var day = DB.trainingDays[date]; var plan = day && day.plan ? day.plan : null;
+  var type = plan ? plan.type : 'base';
+  var rec = {id:uid(), userId:userId, date:date, start:'', end:'', type:type, work:0, distance:0, pace:0,
+    lapDist:0, lapDists:[], lapTimes:[], sets:0, targetTime:'', testDist:0,
+    rpe:0, stretch:false, notes:'教練補登', ts:Date.now()};
+  if(type === 'interval' && plan){
+    rec.lapDist = plan.dist || 400; rec.sets = plan.sets || 8; rec.targetTime = plan.target || '';
+    for(var i=0; i<rec.sets; i++){ rec.lapDists.push(rec.lapDist); rec.lapTimes.push(0); }
+  } else if(type === 'base' && plan){
+    rec.work = plan.work || 0; rec.pace = plan.pace || 0;
+    rec.distance = (plan.pace && plan.work) ? (plan.work / plan.pace) : 0;
+  } else if(type === 'timetrial' && plan){
+    rec.testDist = plan.dist || 0; rec.distance = (plan.dist || 0) / 1000;
+  }
+  DB.records.push(rec); saveDB(); renderAttTable();
+}
+
+function renderAttEditPanel(){
+  var panel = $('attEditPanel'); if(!panel) return;
+  if(!ATT_EDIT){ panel.innerHTML = ''; return; }
+  var userId = ATT_EDIT.userId, date = ATT_EDIT.date;
+  var s = DB.users.find(function(u){ return u.id === userId; });
+  var existing = DB.records.find(function(r){ return r.userId === userId && r.date === date; }) || null;
+  var day = DB.trainingDays[date]; var plan = day && day.plan ? day.plan : null;
+  panel.innerHTML = '<div style="border-top:2px solid var(--bd);margin-top:18px;padding-top:18px">' +
+    '<h3 style="margin-top:0">✏️ 詳細編輯 — ' + esc(s ? s.name : '') + '（' + date + '）</h3>' +
+    (plan ? renderPlanCard(plan) : '') +
+    (!plan ? '<div class="row"><label>練習類型<select id="att_type" onchange="switchFormType(\'att\', this.value)">' +
+      '<option value="base">基礎跑</option><option value="interval">間歇跑</option><option value="timetrial">計時測試</option>' +
+      '</select></label></div>' : '') +
+    '<div id="att_body"></div>' +
+    '<div class="row" style="margin-top:6px">' +
+    '<button class="btn-primary" onclick="saveCoachEdit()">儲存</button>' +
+    '<button class="btn-ghost" onclick="ATT_EDIT=null;renderAttTable();">取消</button>' +
+    '</div></div>';
+  buildRecordForm('att', date, existing, plan);
+  if(!plan && $('att_type')) $('att_type').value = FORM_STATE['att'].type;
+}
+
+function openAttEdit(userId, date){
+  ATT_EDIT = {userId:userId, date:date}; renderAttTable();
+  setTimeout(function(){ var panel = $('attEditPanel'); if(panel) panel.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
+}
+
+function saveCoachEdit(){
+  if(!ATT_EDIT) return;
+  var userId = ATT_EDIT.userId, date = ATT_EDIT.date;
+  var rec = collectForm('att');
+  var existing = DB.records.find(function(r){ return r.userId === userId && r.date === date; });
+  var data = Object.assign({
+    userId:userId, date:date, rpe:existing?existing.rpe:0, stretch:existing?existing.stretch:false,
+    start:existing?existing.start:'', end:existing?existing.end:'',
+    notes:existing?existing.notes:'教練填寫', ts:Date.now()
+  }, rec);
+  if(existing) Object.assign(existing, data);
+  else DB.records.push(Object.assign({id:uid()}, data));
+  saveDB(); ATT_EDIT = null; renderAttTable();
+}
+
+function cancelAtt(userId, date){
+  if(!confirm('確定取消此學生當天的出席紀錄？')) return;
+  DB.records = DB.records.filter(function(r){ return !(r.userId === userId && r.date === date); });
+  saveDB(); ATT_EDIT = null; renderAttTable();
+}
+function markAllPresent(){
+  var date = $('a_date').value; if(!date) return;
+  if(!confirm('將所有尚未記錄的學生標記為出席（' + date + '）？')) return;
+  students().forEach(function(s){
+    var has = DB.records.some(function(r){ return r.userId === s.id && r.date === date; });
+    if(!has) addAtt(s.id, date);
+  });
+  renderAttTable();
+}
+
+/* =====================================================
+   教練：統計分析
+===================================================== */
+function viewCoachStats(){
+  var now = new Date();
+  var ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  $('main').innerHTML = '<div class="card">' +
+    '<h2>📈 統計分析</h2>' +
+    '<div class="row">' +
+    '<label>模式<select id="s_mode" onchange="toggleStatsMode()">' +
+    '<option value="month">按月</option><option value="year">按年</option><option value="range">指定區間</option>' +
+    '</select></label>' +
+    '<span id="box_month"><input type="month" id="s_month" value="' + ym + '" onchange="renderStats()"></span>' +
+    '<span id="box_year" style="display:none"><input type="number" id="s_year" value="' + now.getFullYear() + '" onchange="renderStats()"></span>' +
+    '<span id="box_range" style="display:none">' +
+    '<input type="date" id="s_from" value="' + ym + '-01" onchange="renderStats()"> ～ ' +
+    '<input type="date" id="s_to" value="' + todayStr() + '" onchange="renderStats()">' +
+    '</span>' +
+    '</div>' +
+    '<div id="statsOut"></div>' +
+    '</div>';
+  renderStats();
+}
+function toggleStatsMode(){
+  var m = $('s_mode').value;
+  $('box_month').style.display = m === 'month' ? '' : 'none';
+  $('box_year').style.display = m === 'year' ? '' : 'none';
+  $('box_range').style.display = m === 'range' ? '' : 'none';
+  renderStats();
+}
+function renderStats(){
+  var m = $('s_mode').value;
+  var from = '', to = '', label = '';
+  if(m === 'month'){ var v = $('s_month').value||''; from = v+'-01'; to = v+'-31'; label = v; }
+  else if(m === 'year'){ var y = $('s_year').value; from = y+'-01-01'; to = y+'-12-31'; label = y+' 年'; }
+  else { from = $('s_from').value; to = $('s_to').value; label = from+' ～ '+to; }
+
+  var rows = students().map(function(s){
+    var recs = DB.records.filter(function(r){ return r.userId === s.id && (!from || r.date >= from) && (!to || r.date <= to); });
+    var dist = sumDist(recs);
+    var work = recs.reduce(function(a, r){ return a + (parseFloat(r.work) || 0); }, 0);
+    var rpeArr = recs.filter(function(r){ return r.rpe; }).map(function(r){ return +r.rpe; });
+    var avgRpe = rpeArr.length ? (rpeArr.reduce(function(a,b){ return a+b; }, 0) / rpeArr.length).toFixed(1) : '—';
+    var pace = dist > 0 ? work/dist : 0;
+    return {s:s, cnt:recs.length, dist:dist, work:work, avgRpe:avgRpe, pace:pace, rate:attendanceRate(s.id, from, to)};
+  }).sort(function(a,b){ return b.dist - a.dist; });
+
+  var totalDist = rows.reduce(function(a, r){ return a + r.dist; }, 0);
+  var totalCnt = rows.reduce(function(a, r){ return a + r.cnt; }, 0);
+
+  var html = '<p class="muted">統計區間：<b>' + label + '</b>　｜　全隊總跑量：<b>' + totalDist.toFixed(2) + ' km</b>　｜　總訓練人次：<b>' + totalCnt + '</b></p>';
+  html += '<div class="tablewrap"><table class="tbl"><thead><tr>' +
+    '<th>學生</th><th>班級</th><th>訓練次數</th><th>總距離 (km)</th><th>總時間 (分)</th>' +
+    '<th>平均配速</th><th>平均 RPE</th><th>出席率</th>' +
+    '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    html += '<tr>' +
+      '<td>' + esc(r.s.name) + '</td>' +
+      '<td>' + esc((r.s.profile && r.s.profile.grade) || '—') + '</td>' +
+      '<td>' + r.cnt + '</td>' +
+      '<td><b>' + r.dist.toFixed(2) + '</b></td>' +
+      '<td>' + r.work.toFixed(0) + '</td>' +
+      '<td>' + (r.pace ? fmtPace(r.pace) : '—') + '</td>' +
+      '<td>' + r.avgRpe + '</td>' +
+      '<td>' + (r.rate === null ? '—' : (r.rate*100).toFixed(0) + '%') + '</td>' +
+      '</tr>';
+  });
+  html += '</tbody></table></div>';
+  $('statsOut').innerHTML = html;
+}
+
+/* =====================================================
+   教練：最佳成績
+===================================================== */
+function viewCoachPB(){
+  var html = '<div class="card"><h2>🥇 各項最佳成績</h2>' +
+    '<p class="muted">距離由學生自行填寫，並記錄創下時間的日期與比賽名稱。</p>' +
+    '<div class="tablewrap"><table class="tbl" style="min-width:820px"><thead><tr>' +
+    '<th>學生</th><th>班級</th><th>距離</th><th>時間</th><th>日期</th><th>比賽／備註</th><th>操作</th>' +
+    '</tr></thead><tbody>';
+  students().forEach(function(s){
+    var pb = normalizePB(s.profile && s.profile.pb).filter(function(p){ return p.dist || p.time; });
+    var grade = (s.profile && s.profile.grade) || '—';
+    if(!pb.length){
+      html += '<tr><td>' + esc(s.name) + '</td><td>' + esc(grade) + '</td><td colspan="4" class="muted">尚未填寫</td>' +
+        '<td><button class="btn-sm" onclick="openPBEditorFor(\'' + s.id + '\')">編輯 PB</button></td></tr>';
+      return;
+    }
+    var n = pb.length;
+    pb.forEach(function(p, i){
+      html += '<tr>';
+      if(i === 0){
+        html += '<td rowspan="' + n + '" style="vertical-align:top;font-weight:600">' + esc(s.name) + '</td>';
+        html += '<td rowspan="' + n + '" style="vertical-align:top">' + esc(grade) + '</td>';
+      }
+      html += '<td>' + esc(p.dist||'—') + '</td><td><b>' + esc(p.time||'—') + '</b></td>' +
+        '<td>' + esc(p.date||'—') + '</td><td>' + esc(p.race||'—') + '</td>';
+      if(i === 0) html += '<td rowspan="' + n + '" style="vertical-align:top"><button class="btn-sm" onclick="openPBEditorFor(\'' + s.id + '\')">編輯 PB</button></td>';
+      html += '</tr>';
+    });
+  });
+  html += '</tbody></table></div></div>';
+  $('main').innerHTML = html;
+}
+function openPBEditorFor(userId){
+  var s = DB.users.find(function(u){ return u.id === userId; }); if(!s) return;
+  PB_EDIT = normalizePB(s.profile && s.profile.pb); PB_EDIT_USER = userId;
+  $('modalHost').innerHTML = '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal" style="max-width:760px">' +
+    '<h2>🥇 編輯 PB — ' + esc(s.name) + '</h2>' +
+    '<div class="pbhead"><span>距離</span><span>時間</span><span>日期</span><span>比賽／備註</span><span></span></div>' +
+    '<div id="pbEditor"></div>' +
+    '<button class="btn-ghost" style="margin-bottom:18px" onclick="addPBRow()">＋ 新增 PB</button>' +
+    '<div class="row" style="margin-bottom:0;border-top:1px solid var(--bd);padding-top:16px">' +
+    '<button class="btn-primary" onclick="savePBForUser()">儲存</button>' +
+    '<button class="btn-ghost" onclick="closeModal()">取消</button>' +
+    '</div></div></div>';
+  renderPBEditor('pbEditor');
+}
+function savePBForUser(){
+  var s = DB.users.find(function(u){ return u.id === PB_EDIT_USER; });
+  if(!s){ closeModal(); return; }
+  if(!s.profile) s.profile = {};
+  s.profile.pb = cleanPB();
+  saveDB(); closeModal(); render(); alert('✅ 已儲存 PB');
+}
+
+/* =====================================================
+   教練：學生管理
+===================================================== */
+function viewCoachStudents(){
+  var html = '<div class="card"><h2>👥 學生管理</h2>' +
+    '<p class="muted">建立學生基本資料：姓名、班級、性別、出生年月日等。</p>' +
+    '<div class="row" style="border-top:1px solid var(--bd);padding-top:14px">' +
+    '<input id="ns_name" placeholder="姓名" style="max-width:110px">' +
+    '<input id="ns_grade" placeholder="班級" style="max-width:110px">' +
+    '<select id="ns_gender" style="max-width:85px"><option value="">性別</option><option value="男">男</option><option value="女">女</option></select>' +
+    '<input type="date" id="ns_birthday" style="max-width:150px">' +
+    '<input id="ns_user" placeholder="帳號" style="max-width:110px">' +
+    '<input id="ns_pass" placeholder="密碼" value="1234" style="max-width:95px">' +
+    '<button class="btn-primary" onclick="addStudent()">＋ 新增</button>' +
+    '</div>' +
+    '<div class="tablewrap"><table class="tbl" style="min-width:900px"><thead><tr>' +
+    '<th>姓名</th><th>班級</th><th>性別</th><th>出生年月日</th><th>年齡</th>' +
+    '<th>帳號</th><th>密碼</th><th>紀錄數</th><th>操作</th>' +
+    '</tr></thead><tbody>';
+  students().forEach(function(s){
+    var p = s.profile || {};
+    var age = calcAge(p.birthday);
+    html += '<tr>' +
+      '<td><b>' + esc(s.name) + '</b></td>' +
+      '<td>' + esc(p.grade||'—') + '</td>' +
+      '<td>' + (p.gender ? genderTag(p.gender) : '<span class="muted">—</span>') + '</td>' +
+      '<td>' + esc(p.birthday||'—') + '</td>' +
+      '<td>' + (age === null ? '—' : age + ' 歲') + '</td>' +
+      '<td>' + esc(s.username) + '</td><td>' + esc(s.password) + '</td>' +
+      '<td>' + recsOf(s.id).length + '</td>' +
+      '<td>' +
+      '<button class="btn-sm" onclick="openEditStudent(\'' + s.id + '\')">編輯資料</button>' +
+      '<button class="btn-sm" onclick="resetPwd(\'' + s.id + '\')">改密碼</button>' +
+      '<button class="btn-sm" onclick="openPBEditorFor(\'' + s.id + '\')">編輯 PB</button>' +
+      '<button class="btn-sm danger" onclick="delStudent(\'' + s.id + '\')">刪除</button>' +
+      '</td></tr>';
+  });
+  html += '</tbody></table></div></div>';
+  $('main').innerHTML = html;
+}
+
+function addStudent(){
+  var name = ($('ns_name').value || '').trim(), grade = ($('ns_grade').value || '').trim();
+  var gender = $('ns_gender').value, birthday = $('ns_birthday').value;
+  var user = ($('ns_user').value || '').trim(), pass = ($('ns_pass').value || '').trim() || '1234';
+  if(!name || !user){ alert('請至少填寫姓名與帳號'); return; }
+  if(DB.users.some(function(u){ return u.username === user; })){ alert('❌ 此帳號已存在'); return; }
+  DB.users.push({
+    id: uid(), username: user, password: pass, role: 'student', name: name,
+    profile: { gender: gender||'', grade: grade||'', birthday: birthday||'', height:'', weight:'', pb:[] }
+  });
+  saveDB(); alert('✅ 已新增學生：' + name); viewCoachStudents();
+}
+
+function openEditStudent(id){
+  var s = DB.users.find(function(u){ return u.id === id; }); if(!s) return;
+  var p = s.profile || {};
+  var age = calcAge(p.birthday);
+  $('modalHost').innerHTML = '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">' +
+    '<h2>✏️ 編輯學生資料 — ' + esc(s.name) + '</h2>' +
+    '<div class="grid2">' +
+    '<label>姓名<input id="es_name" value="' + esc(s.name) + '"></label>' +
+    '<label>班級<input id="es_grade" value="' + esc(p.grade||'') + '"></label>' +
+    '<label>性別<select id="es_gender"><option value="">未填</option><option value="男" ' + (p.gender === '男' ? 'selected' : '') + '>男</option><option value="女" ' + (p.gender === '女' ? 'selected' : '') + '>女</option></select></label>' +
+    '<label>出生年月日<input type="date" id="es_birthday" value="' + esc(p.birthday||'') + '"></label>' +
+    '<label>年齡<input id="es_age" value="' + (age === null ? '' : age + ' 歲') + '" disabled></label>' +
+    '<label>身高 (cm)<input type="number" id="es_height" value="' + esc(p.height||'') + '"></label>' +
+    '<label>體重 (kg)<input id="es_weight" value="' + esc(p.weight||'') + '"></label>' +
+    '<label>帳號<input value="' + esc(s.username) + '" disabled></label>' +
+    '</div>' +
+    '<h3>🔑 帳號密碼</h3>' +
+    '<div class="grid2">' +
+    '<label>登入帳號<input id="es_username" value="' + esc(s.username) + '"></label>' +
+    '<label>登入密碼<input id="es_password" value="' + esc(s.password) + '"></label>' +
+    '</div>' +
+    '<div class="row" style="margin-bottom:0;border-top:1px solid var(--bd);padding-top:16px">' +
+    '<button class="btn-primary" onclick="saveEditStudent(\'' + id + '\')">儲存</button>' +
+    '<button class="btn-ghost" onclick="closeModal()">取消</button>' +
+    '</div></div></div>';
+}
+
+function saveEditStudent(id){
+  var s = DB.users.find(function(u){ return u.id === id; }); if(!s){ closeModal(); return; }
+  var newName = ($('es_name').value || '').trim(), newUser = ($('es_username').value || '').trim(), newPass = ($('es_password').value || '').trim();
+  if(!newName){ alert('姓名不可為空'); return; }
+  if(!newUser){ alert('帳號不可為空'); return; }
+  if(DB.users.some(function(u){ return u.id !== id && u.username === newUser; })){ alert('❌ 此帳號已被使用'); return; }
+  if(newPass.length < 4){ alert('密碼至少 4 位'); return; }
+  s.name = newName; s.username = newUser; s.password = newPass;
+  if(!s.profile) s.profile = {};
+  s.profile.gender = $('es_gender').value;
+  s.profile.grade = ($('es_grade').value || '').trim();
+  s.profile.birthday = $('es_birthday').value;
+  s.profile.height = $('es_height').value;
+  s.profile.weight = $('es_weight').value;
+  saveDB(); closeModal(); render(); alert('✅ 學生資料已更新');
+}
+
+function resetPwd(id){
+  var s = DB.users.find(function(u){ return u.id === id; }); if(!s) return;
+  var v = prompt('設定 ' + s.name + ' 的新密碼：', '1234');
+  if(v === null) return; if(v.length < 4){ alert('密碼至少 4 位'); return; }
+  s.password = v; saveDB(); viewCoachStudents();
+}
+
+function delStudent(id){
+  var s = DB.users.find(function(u){ return u.id === id; }); if(!s) return;
+  if(!confirm('刪除學生「' + s.name + '」？其所有訓練紀錄也會一併刪除。')) return;
+  DB.users = DB.users.filter(function(u){ return u.id !== id; });
+  DB.records = DB.records.filter(function(r){ return r.userId !== id; });
+  DB.messages = DB.messages.filter(function(m){ return m.userId !== id; });
+  saveDB(); viewCoachStudents();
+}
+
+/* =====================================================
+   啟動
+===================================================== */
+window.addEventListener('load', function(){
+  initDB();
+  var savedId = safeStorage.sGet('runlog_uid');
+  if(savedId){
+    var u = DB.users.find(function(x){ return x.id === savedId; });
+    if(u){ currentUser = u; showApp(); }
+  }
+});
+</script>
+</body>
+</html>
